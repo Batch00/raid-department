@@ -4,26 +4,52 @@
 
 @layer base {
   :root {
-    --background: 220 12% 9%;
-    --foreground: 220 8% 95%;
-    --card: 220 12% 11%;
-    --card-foreground: 220 8% 95%;
-    --popover: 220 12% 11%;
-    --popover-foreground: 220 8% 95%;
-    --primary: 25 95% 53%;
-    --primary-foreground: 220 12% 9%;
-    --secondary: 220 12% 15%;
-    --secondary-foreground: 220 8% 85%;
-    --muted: 220 12% 15%;
-    --muted-foreground: 220 8% 65%;
-    --accent: 220 12% 15%;
-    --accent-foreground: 220 8% 85%;
-    --destructive: 0 62% 30%;
+    /* Monster Hunter Theme - Dark Forest Base */
+    --background: 120 20% 8%;
+    --foreground: 40 20% 90%;
+    --card: 120 15% 12%;
+    --card-foreground: 40 20% 90%;
+    --popover: 120 15% 12%;
+    --popover-foreground: 40 20% 90%;
+    
+    /* Themed Primary Colors */
+    --primary: 120 60% 45%; /* Forest Green */
+    --primary-foreground: 120 20% 8%;
+    --secondary: 30 40% 25%; /* Earth Brown */
+    --secondary-foreground: 40 20% 90%;
+    --muted: 120 15% 15%;
+    --muted-foreground: 40 15% 65%;
+    --accent: 280 60% 50%; /* Mystic Purple */
+    --accent-foreground: 40 20% 90%;
+    --destructive: 0 70% 45%;
     --destructive-foreground: 0 85% 97%;
-    --border: 220 12% 20%;
-    --input: 220 12% 20%;
-    --ring: 25 95% 53%;
-    --radius: 0.5rem;
+    --border: 120 15% 20%;
+    --input: 120 15% 18%;
+    --ring: 120 60% 45%;
+    --radius: 0.75rem;
+
+    /* Panel-specific colors */
+    --monster-hunt: 0 70% 45%; /* Blood Red */
+    --monster-hunt-glow: 0 70% 55%;
+    --inventory: 120 60% 40%; /* Nature Green */
+    --inventory-glow: 120 60% 50%;
+    --skill-tree: 45 70% 50%; /* Gold */
+    --skill-tree-glow: 45 70% 60%;
+    --marketplace: 280 60% 50%; /* Mystic Purple */
+    --marketplace-glow: 280 60% 60%;
+    --crafting: 30 60% 45%; /* Forge Orange */
+    --crafting-glow: 30 60% 55%;
+
+    /* Rarity colors */
+    --rarity-common: 0 0% 50%;
+    --rarity-uncommon: 120 40% 45%;
+    --rarity-rare: 240 70% 55%;
+    --rarity-epic: 280 70% 60%;
+    --rarity-legendary: 45 80% 55%;
+
+    /* Effects */
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -32,8 +58,53 @@
 }
 
 body {
-  background-color: hsl(var(--background));
+  background: linear-gradient(135deg, hsl(var(--background)), hsl(120 15% 6%)), 
+              radial-gradient(circle at 20% 80%, hsl(120 30% 10% / 0.3), transparent 50%),
+              radial-gradient(circle at 80% 20%, hsl(30 40% 10% / 0.2), transparent 50%);
   color: hsl(var(--foreground));
+  min-height: 100vh;
+}
+
+/* Panel theme utilities */
+.panel-monster-hunt {
+  border-color: hsl(var(--monster-hunt) / 0.6);
+  box-shadow: inset 0 1px 0 hsl(var(--monster-hunt) / 0.1), 0 0 10px hsl(var(--monster-hunt) / 0.2);
+}
+
+.panel-inventory {
+  border-color: hsl(var(--inventory) / 0.6);
+  box-shadow: inset 0 1px 0 hsl(var(--inventory) / 0.1), 0 0 10px hsl(var(--inventory) / 0.2);
+}
+
+.panel-skill-tree {
+  border-color: hsl(var(--skill-tree) / 0.6);
+  box-shadow: inset 0 1px 0 hsl(var(--skill-tree) / 0.1), 0 0 10px hsl(var(--skill-tree) / 0.2);
+}
+
+.panel-marketplace {
+  border-color: hsl(var(--marketplace) / 0.6);
+  box-shadow: inset 0 1px 0 hsl(var(--marketplace) / 0.1), 0 0 10px hsl(var(--marketplace) / 0.2);
+}
+
+.panel-crafting {
+  border-color: hsl(var(--crafting) / 0.6);
+  box-shadow: inset 0 1px 0 hsl(var(--crafting) / 0.1), 0 0 10px hsl(var(--crafting) / 0.2);
+}
+
+/* Hover effects */
+.panel-hover:hover {
+  transform: translateY(-1px);
+  transition: var(--transition-smooth);
+}
+
+/* Item rarity backgrounds */
+.rarity-common { background: linear-gradient(135deg, hsl(var(--rarity-common) / 0.1), hsl(var(--rarity-common) / 0.05)); }
+.rarity-uncommon { background: linear-gradient(135deg, hsl(var(--rarity-uncommon) / 0.15), hsl(var(--rarity-uncommon) / 0.08)); }
+.rarity-rare { background: linear-gradient(135deg, hsl(var(--rarity-rare) / 0.15), hsl(var(--rarity-rare) / 0.08)); }
+.rarity-epic { background: linear-gradient(135deg, hsl(var(--rarity-epic) / 0.15), hsl(var(--rarity-epic) / 0.08)); }
+.rarity-legendary { 
+  background: linear-gradient(135deg, hsl(var(--rarity-legendary) / 0.2), hsl(var(--rarity-legendary) / 0.1));
+  box-shadow: 0 0 15px hsl(var(--rarity-legendary) / 0.3);
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
