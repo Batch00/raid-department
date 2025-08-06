@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sword, Zap, Shield, Clock, Battery, Play, Pause } from 'lucide-react';
-import { Monster, PlayerStats, Biome, InventoryItem } from '@/types/gameTypes';
+import { Monster, PlayerStats, Biome, InventoryItem, PlayerProfile } from '@/types/gameTypes';
 
 interface MonsterHuntsPanelProps {
   playerStats: PlayerStats;
   updatePlayerStats: (stats: Partial<PlayerStats>) => void;
   updateMonsterDefeatedCount: (monsterId: string) => void;
   inventory: InventoryItem[];
+  playerProfile: PlayerProfile;
 }
 
 const biomes: Biome[] = [
@@ -30,6 +31,24 @@ const biomes: Biome[] = [
         goldReward: 150,
         defeatedCount: 0,
         isAutoHuntUnlocked: false
+      },
+      {
+        id: 'shadow-alpha',
+        name: 'Shadow Alpha',
+        biome: 'forest',
+        level: 25,
+        icon: '🐺‍⬛',
+        huntTime: 60,
+        drops: [
+          { id: 'alpha-essence', name: 'Alpha Essence', icon: '🌑', rarity: 'rare', quantity: 2 },
+          { id: 'alpha-pelt', name: 'Alpha Pelt', icon: '🦊', rarity: 'epic', quantity: 1 }
+        ],
+        goldReward: 400,
+        defeatedCount: 0,
+        isAutoHuntUnlocked: false,
+        isEvolved: true,
+        evolvedFrom: 'shadow-wolf',
+        evolutionRequirement: { type: 'kills', value: 50 }
       },
       {
         id: 'forest-troll',
@@ -67,6 +86,24 @@ const biomes: Biome[] = [
         goldReward: 350,
         defeatedCount: 0,
         isAutoHuntUnlocked: false
+      },
+      {
+        id: 'frost-behemoth',
+        name: 'Frost Behemoth',
+        biome: 'tundra',
+        level: 35,
+        icon: '🧊',
+        huntTime: 90,
+        drops: [
+          { id: 'behemoth-hide', name: 'Behemoth Hide', icon: '❄️', rarity: 'epic', quantity: 1 },
+          { id: 'frozen-core', name: 'Frozen Core', icon: '💎', rarity: 'legendary', quantity: 1 }
+        ],
+        goldReward: 750,
+        defeatedCount: 0,
+        isAutoHuntUnlocked: false,
+        isEvolved: true,
+        evolvedFrom: 'tundra-yeti',
+        evolutionRequirement: { type: 'playerLevel', value: 30 }
       }
     ]
   },
@@ -89,6 +126,24 @@ const biomes: Biome[] = [
         goldReward: 200,
         defeatedCount: 0,
         isAutoHuntUnlocked: false
+      },
+      {
+        id: 'toxic-hydra',
+        name: 'Toxic Hydra',
+        biome: 'swamp',
+        level: 28,
+        icon: '🐍',
+        huntTime: 75,
+        drops: [
+          { id: 'hydra-venom', name: 'Hydra Venom', icon: '💨', rarity: 'epic', quantity: 1 },
+          { id: 'hydra-scale', name: 'Hydra Scale', icon: '🛡️', rarity: 'epic', quantity: 2 }
+        ],
+        goldReward: 500,
+        defeatedCount: 0,
+        isAutoHuntUnlocked: false,
+        isEvolved: true,
+        evolvedFrom: 'swamp-lurker',
+        evolutionRequirement: { type: 'kills', value: 30 }
       }
     ]
   }
@@ -98,7 +153,8 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
   playerStats, 
   updatePlayerStats, 
   updateMonsterDefeatedCount,
-  inventory 
+  inventory,
+  playerProfile 
 }) => {
   const [selectedBiome, setSelectedBiome] = useState<string>('forest');
   const [monsters, setMonsters] = useState<Monster[]>(biomes.find(b => b.id === 'forest')?.monsters || []);
@@ -239,15 +295,28 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
         {monsters.map(monster => {
           const isHunting = activeHunts[monster.id];
           const canHunt = playerStats.stamina >= 10 && playerStats.activeHunts.length < 3;
+          const isEvolutionAvailable = monster.isEvolved && 
+            ((monster.evolutionRequirement?.type === 'kills' && 
+              monsters.find(m => m.id === monster.evolvedFrom)?.defeatedCount >= monster.evolutionRequirement.value) ||
+             (monster.evolutionRequirement?.type === 'playerLevel' && 
+              playerProfile.level >= monster.evolutionRequirement.value));
+          
+          // Only show evolved monsters if evolution is available
+          if (monster.isEvolved && !isEvolutionAvailable) return null;
           
           return (
-            <div key={monster.id} className={`p-4 border-2 border-red-500/30 rounded-lg bg-gradient-to-r from-red-950/20 to-red-900/10 hover:border-red-400/50 transition-all ${getBiomeColor(selectedBiome)}`}>
+            <div key={monster.id} className={`p-4 border-2 border-red-500/30 rounded-lg bg-gradient-to-r from-red-950/20 to-red-900/10 hover:border-red-400/50 transition-all ${getBiomeColor(selectedBiome)} ${monster.isEvolved ? 'border-purple-500/50' : ''}`}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-lg">
                   {monster.icon}
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-red-100">{monster.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-red-100">{monster.name}</h3>
+                    {monster.isEvolved && (
+                      <span className="text-xs bg-purple-600 px-2 py-1 rounded text-white">EVOLVED</span>
+                    )}
+                  </div>
                   <p className="text-sm text-red-300">
                     Drops: {monster.drops.map(d => d.name).join(', ')}
                   </p>
@@ -267,6 +336,11 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
                   {monster.defeatedCount >= 10 && (
                     <div className="text-xs text-green-400 mt-1">
                       ✨ Auto-hunt unlocked!
+                    </div>
+                  )}
+                  {monster.isEvolved && monster.evolvedFrom && (
+                    <div className="text-xs text-purple-400 mt-1">
+                      🧬 Evolved from {monsters.find(m => m.id === monster.evolvedFrom)?.name}
                     </div>
                   )}
                 </div>

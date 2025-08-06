@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, SplitSquareHorizontal, SplitSquareVertical, Sword, Package, BookOpen, ShoppingCart, Hammer, Wrench } from 'lucide-react';
-import { WindowPanel, PanelType, InventoryItem, PlayerStats } from '@/types/gameTypes';
+import { Plus, Minus, SplitSquareHorizontal, SplitSquareVertical, Sword, Package, BookOpen, ShoppingCart, Hammer, Wrench, User, Trophy, BarChart3 } from 'lucide-react';
+import { WindowPanel, PanelType, InventoryItem, PlayerStats, PlayerProfile, Achievement } from '@/types/gameTypes';
 import { useWindowManager } from './WindowManagerProvider';
 import { MonsterHuntsPanel } from './panels/MonsterHuntsPanel';
 import { InventoryPanel } from './panels/InventoryPanel';
@@ -9,6 +9,9 @@ import { SkillTreePanel } from './panels/SkillTreePanel';
 import { MarketplacePanel } from './panels/MarketplacePanel';
 import { CraftingPanel } from './panels/CraftingPanel';
 import { GearUpgradingPanel } from './panels/GearUpgradingPanel';
+import { PlayerProfilePanel } from './panels/PlayerProfilePanel';
+import { AchievementsPanel } from './panels/AchievementsPanel';
+import { LeaderboardsPanel } from './panels/LeaderboardsPanel';
 
 interface PanelContentProps {
   panel: WindowPanel;
@@ -20,6 +23,10 @@ interface PanelContentProps {
   playerGold: number;
   updatePlayerGold: (gold: number) => void;
   updateMonsterDefeatedCount: (monsterId: string) => void;
+  playerProfile: PlayerProfile;
+  updatePlayerProfile: (updates: Partial<PlayerProfile>) => void;
+  achievements: Achievement[];
+  updateAchievements: (achievements: Achievement[]) => void;
 }
 
 export const PanelContent: React.FC<PanelContentProps> = ({ 
@@ -31,7 +38,11 @@ export const PanelContent: React.FC<PanelContentProps> = ({
   removeFromInventory, 
   playerGold, 
   updatePlayerGold,
-  updateMonsterDefeatedCount
+  updateMonsterDefeatedCount,
+  playerProfile,
+  updatePlayerProfile,
+  achievements,
+  updateAchievements
 }) => {
   const { splitPanel, setPanelType, removePanel } = useWindowManager();
 
@@ -42,6 +53,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
     { value: 'marketplace', label: 'Marketplace' },
     { value: 'crafting', label: 'Crafting' },
     { value: 'gear-upgrading', label: 'Gear Upgrading' },
+    { value: 'player-profile', label: 'Player Profile' },
+    { value: 'achievements', label: 'Achievements' },
+    { value: 'leaderboards', label: 'Leaderboards' },
     { value: 'empty', label: 'Empty' }
   ];
 
@@ -53,6 +67,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       case 'marketplace': return <ShoppingCart className="h-4 w-4" />;
       case 'crafting': return <Hammer className="h-4 w-4" />;
       case 'gear-upgrading': return <Wrench className="h-4 w-4" />;
+      case 'player-profile': return <User className="h-4 w-4" />;
+      case 'achievements': return <Trophy className="h-4 w-4" />;
+      case 'leaderboards': return <BarChart3 className="h-4 w-4" />;
       default: return <Plus className="h-4 w-4" />;
     }
   };
@@ -65,6 +82,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       case 'marketplace': return 'panel-marketplace';
       case 'crafting': return 'panel-crafting';
       case 'gear-upgrading': return 'panel-gear-upgrading';
+      case 'player-profile': return 'panel-player-profile';
+      case 'achievements': return 'panel-achievements';
+      case 'leaderboards': return 'panel-leaderboards';
       default: return '';
     }
   };
@@ -78,6 +98,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             updatePlayerStats={updatePlayerStats}
             updateMonsterDefeatedCount={updateMonsterDefeatedCount}
             inventory={inventory}
+            playerProfile={playerProfile}
           />
         );
       case 'inventory':
@@ -115,6 +136,23 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             updatePlayerGold={updatePlayerGold}
           />
         );
+      case 'player-profile':
+        return (
+          <PlayerProfilePanel 
+            playerProfile={playerProfile}
+            updatePlayerProfile={updatePlayerProfile}
+          />
+        );
+      case 'achievements':
+        return (
+          <AchievementsPanel 
+            playerProfile={playerProfile}
+            achievements={achievements}
+            updateAchievements={updateAchievements}
+          />
+        );
+      case 'leaderboards':
+        return <LeaderboardsPanel />;
       case 'empty':
       default:
         return (

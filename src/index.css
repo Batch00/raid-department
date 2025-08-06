@@ -124,6 +124,18 @@ body {
   border-color: rgb(251 146 60 / 0.4) !important;
 }
 
+.panel-player-profile {
+  border-color: rgb(59 130 246 / 0.4) !important;
+}
+
+.panel-achievements {
+  border-color: rgb(234 179 8 / 0.4) !important;
+}
+
+.panel-leaderboards {
+  border-color: rgb(168 85 247 / 0.4) !important;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

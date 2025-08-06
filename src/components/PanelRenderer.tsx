@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { WindowPanel, PanelType, InventoryItem, PlayerStats } from '@/types/gameTypes';
+import { WindowPanel, PanelType, InventoryItem, PlayerStats, PlayerProfile, Achievement } from '@/types/gameTypes';
 import { PanelContent } from './PanelContent';
 
 interface PanelRendererProps {
@@ -13,6 +13,10 @@ interface PanelRendererProps {
   playerGold: number;
   updatePlayerGold: (gold: number) => void;
   updateMonsterDefeatedCount: (monsterId: string) => void;
+  playerProfile: PlayerProfile;
+  updatePlayerProfile: (updates: Partial<PlayerProfile>) => void;
+  achievements: Achievement[];
+  updateAchievements: (achievements: Achievement[]) => void;
 }
 
 export const PanelRenderer: React.FC<PanelRendererProps> = ({ 
@@ -24,7 +28,11 @@ export const PanelRenderer: React.FC<PanelRendererProps> = ({
   removeFromInventory, 
   playerGold, 
   updatePlayerGold,
-  updateMonsterDefeatedCount
+  updateMonsterDefeatedCount,
+  playerProfile,
+  updatePlayerProfile,
+  achievements,
+  updateAchievements
 }) => {
   if (panel.children && panel.children.length > 0) {
     return (
@@ -42,6 +50,10 @@ export const PanelRenderer: React.FC<PanelRendererProps> = ({
                 playerGold={playerGold}
                 updatePlayerGold={updatePlayerGold}
                 updateMonsterDefeatedCount={updateMonsterDefeatedCount}
+                playerProfile={playerProfile}
+                updatePlayerProfile={updatePlayerProfile}
+                achievements={achievements}
+                updateAchievements={updateAchievements}
               />
             </ResizablePanel>
             {index < panel.children!.length - 1 && (
@@ -64,6 +76,10 @@ export const PanelRenderer: React.FC<PanelRendererProps> = ({
       playerGold={playerGold}
       updatePlayerGold={updatePlayerGold}
       updateMonsterDefeatedCount={updateMonsterDefeatedCount}
+      playerProfile={playerProfile}
+      updatePlayerProfile={updatePlayerProfile}
+      achievements={achievements}
+      updateAchievements={updateAchievements}
     />
   );
 };

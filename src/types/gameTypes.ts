@@ -1,4 +1,4 @@
-export type PanelType = 'monster-hunts' | 'inventory' | 'skill-tree' | 'marketplace' | 'crafting' | 'gear-upgrading' | 'empty';
+export type PanelType = 'monster-hunts' | 'inventory' | 'skill-tree' | 'marketplace' | 'crafting' | 'gear-upgrading' | 'player-profile' | 'achievements' | 'leaderboards' | 'empty';
 
 export interface WindowPanel {
   id: string;
@@ -19,6 +19,12 @@ export interface Monster {
   goldReward: number;
   defeatedCount: number;
   isAutoHuntUnlocked: boolean;
+  isEvolved?: boolean;
+  evolvedFrom?: string;
+  evolutionRequirement?: {
+    type: 'kills' | 'playerLevel';
+    value: number;
+  };
 }
 
 export interface InventoryItem {
@@ -40,6 +46,23 @@ export interface PlayerStats {
   staminaRegenRate: number; // per minute
   activeHunts: string[]; // monster IDs
   skills: { [skillName: string]: number };
+}
+
+export interface PlayerProfile {
+  username: string;
+  faction: string;
+  level: number;
+  xp: number;
+  xpToNextLevel: number;
+  avatar: string;
+  equippedGear: {
+    weapon?: InventoryItem;
+    armor?: InventoryItem;
+    accessory?: InventoryItem;
+  };
+  totalMonstersHunted: number;
+  totalGoldEarned: number;
+  totalIdleTime: number; // in seconds
 }
 
 export interface Biome {
@@ -66,4 +89,22 @@ export interface GearUpgrade {
   materials: { itemId: string; quantity: number }[];
   goldCost: number;
   successRate: number;
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  isCompleted: boolean;
+  progress: number;
+  maxProgress: number;
+  type: 'monsters' | 'crafting' | 'gold' | 'skills' | 'idle';
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  username: string;
+  value: number;
+  faction: string;
 }

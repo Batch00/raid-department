@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { WindowPanel, InventoryItem, PlayerStats } from '@/types/gameTypes';
+import { WindowPanel, InventoryItem, PlayerStats, PlayerProfile, Achievement } from '@/types/gameTypes';
 import { WindowManagerProvider } from './WindowManagerProvider';
 import { PanelRenderer } from './PanelRenderer';
 
@@ -41,6 +41,94 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
   ]);
 
   const [playerGold, setPlayerGold] = useState(25000);
+
+  const [playerProfile, setPlayerProfile] = useState<PlayerProfile>({
+    username: 'DragonSlayer',
+    faction: 'Shadow Hunters',
+    level: 15,
+    xp: 45000,
+    xpToNextLevel: 60000,
+    avatar: '🗡️',
+    equippedGear: {
+      weapon: { id: 'starter-sword', name: 'Starter Sword', icon: '⚔️', rarity: 'common', quantity: 1, type: 'equipment', stats: { 'attack speed': 10 } },
+      armor: undefined,
+      accessory: undefined
+    },
+    totalMonstersHunted: 234,
+    totalGoldEarned: 125000,
+    totalIdleTime: 86400 // 24 hours in seconds
+  });
+
+  const [achievements, setAchievements] = useState<Achievement[]>([
+    {
+      id: 'first-hunt',
+      name: 'First Hunt',
+      description: 'Complete your first monster hunt',
+      icon: '🗡️',
+      isCompleted: true,
+      progress: 1,
+      maxProgress: 1,
+      type: 'monsters'
+    },
+    {
+      id: 'monster-slayer',
+      name: 'Monster Slayer',
+      description: 'Hunt 100 monsters',
+      icon: '💀',
+      isCompleted: false,
+      progress: 234,
+      maxProgress: 100,
+      type: 'monsters'
+    },
+    {
+      id: 'craft-master',
+      name: 'Craft Master',
+      description: 'Craft 50 items',
+      icon: '🔨',
+      isCompleted: false,
+      progress: 12,
+      maxProgress: 50,
+      type: 'crafting'
+    },
+    {
+      id: 'gold-hoarder',
+      name: 'Gold Hoarder',
+      description: 'Earn 100,000 gold',
+      icon: '💰',
+      isCompleted: true,
+      progress: 125000,
+      maxProgress: 100000,
+      type: 'gold'
+    },
+    {
+      id: 'skill-adept',
+      name: 'Skill Adept',
+      description: 'Reach level 5 in any skill',
+      icon: '📚',
+      isCompleted: false,
+      progress: 3,
+      maxProgress: 5,
+      type: 'skills'
+    },
+    {
+      id: 'idle-master',
+      name: 'Idle Master',
+      description: 'Accumulate 72 hours of idle time',
+      icon: '⏰',
+      isCompleted: false,
+      progress: 24,
+      maxProgress: 72,
+      type: 'idle'
+    }
+  ]);
+
+  const updatePlayerProfile = (updates: Partial<PlayerProfile>) => {
+    setPlayerProfile(prev => ({ ...prev, ...updates }));
+  };
+
+  const updateAchievements = (newAchievements: Achievement[]) => {
+    setAchievements(newAchievements);
+  };
 
   const updatePlayerStats = (updates: Partial<PlayerStats>) => {
     setPlayerStats(prev => ({ ...prev, ...updates }));
@@ -94,6 +182,10 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
           playerGold={playerGold}
           updatePlayerGold={updatePlayerGold}
           updateMonsterDefeatedCount={updateMonsterDefeatedCount}
+          playerProfile={playerProfile}
+          updatePlayerProfile={updatePlayerProfile}
+          achievements={achievements}
+          updateAchievements={updateAchievements}
         />
       </div>
     </WindowManagerProvider>
