@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, SplitSquareHorizontal, SplitSquareVertical, Sword, Package, BookOpen, ShoppingCart, Hammer } from 'lucide-react';
+import { Plus, Minus, SplitSquareHorizontal, SplitSquareVertical, Sword, Package, BookOpen, ShoppingCart, Hammer, Wrench } from 'lucide-react';
 import { WindowPanel, PanelType, InventoryItem, PlayerStats } from '@/types/gameTypes';
 import { useWindowManager } from './WindowManagerProvider';
 import { MonsterHuntsPanel } from './panels/MonsterHuntsPanel';
@@ -8,6 +8,7 @@ import { InventoryPanel } from './panels/InventoryPanel';
 import { SkillTreePanel } from './panels/SkillTreePanel';
 import { MarketplacePanel } from './panels/MarketplacePanel';
 import { CraftingPanel } from './panels/CraftingPanel';
+import { GearUpgradingPanel } from './panels/GearUpgradingPanel';
 
 interface PanelContentProps {
   panel: WindowPanel;
@@ -40,6 +41,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
     { value: 'skill-tree', label: 'Skill Tree' },
     { value: 'marketplace', label: 'Marketplace' },
     { value: 'crafting', label: 'Crafting' },
+    { value: 'gear-upgrading', label: 'Gear Upgrading' },
     { value: 'empty', label: 'Empty' }
   ];
 
@@ -50,6 +52,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       case 'skill-tree': return <BookOpen className="h-4 w-4" />;
       case 'marketplace': return <ShoppingCart className="h-4 w-4" />;
       case 'crafting': return <Hammer className="h-4 w-4" />;
+      case 'gear-upgrading': return <Wrench className="h-4 w-4" />;
       default: return <Plus className="h-4 w-4" />;
     }
   };
@@ -61,6 +64,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       case 'skill-tree': return 'panel-skill-tree';
       case 'marketplace': return 'panel-marketplace';
       case 'crafting': return 'panel-crafting';
+      case 'gear-upgrading': return 'panel-gear-upgrading';
       default: return '';
     }
   };
@@ -73,6 +77,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             playerStats={playerStats}
             updatePlayerStats={updatePlayerStats}
             updateMonsterDefeatedCount={updateMonsterDefeatedCount}
+            inventory={inventory}
           />
         );
       case 'inventory':
@@ -100,6 +105,16 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             removeFromInventory={removeFromInventory}
           />
         );
+      case 'gear-upgrading':
+        return (
+          <GearUpgradingPanel 
+            inventory={inventory}
+            addToInventory={addToInventory}
+            removeFromInventory={removeFromInventory}
+            playerGold={playerGold}
+            updatePlayerGold={updatePlayerGold}
+          />
+        );
       case 'empty':
       default:
         return (
@@ -114,7 +129,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
   };
 
   return (
-    <div className={`h-full border-2 bg-card panel-hover ${getPanelThemeClass(panel.type)}`}>
+    <div className={`h-full border-2 bg-card panel-hover ${getPanelThemeClass(panel.type)} flex flex-col`}>
       {/* Panel Header */}
       <div className="border-b border-border bg-muted/80 backdrop-blur-sm p-3">
         <div className="flex items-center justify-between">
@@ -163,7 +178,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       </div>
 
       {/* Panel Content */}
-      <div className="p-4 h-full overflow-auto">
+      <div className="p-4 flex-1 overflow-auto">
         {renderPanelContent()}
       </div>
     </div>

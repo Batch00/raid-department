@@ -136,6 +136,18 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
     }
   };
 
+  const getMaterialSource = (materialId: string) => {
+    const materialSources: { [key: string]: string } = {
+      'shadow-essence': 'Drops from Shadow Wolf (Forest)',
+      'iron-ore': 'Available in Marketplace',
+      'crystal-shard': 'Drops from Tundra Yeti (Tundra)',
+      'leather': 'Available in Marketplace',
+      'herb': 'Drops from various Forest monsters',
+      'pure-water': 'Available in Marketplace'
+    };
+    return materialSources[materialId] || 'Unknown source';
+  };
+
   return (
     <div className="h-full">
       <div className="flex items-center gap-2 mb-4">
@@ -170,14 +182,20 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
                   {recipe.materials.map((material, index) => {
                     const inventoryItem = inventory.find(item => item.id === material.itemId);
                     const hasEnough = inventoryItem && inventoryItem.quantity >= material.quantity;
+                    const materialSource = getMaterialSource(material.itemId);
                     
                     return (
-                      <div key={index} className={`flex items-center gap-1 bg-${categoryColor}-950/40 px-2 py-1 rounded text-xs ${hasEnough ? 'text-green-400' : 'text-red-400'}`}>
+                      <div 
+                        key={index} 
+                        className={`flex items-center gap-1 bg-${categoryColor}-950/40 px-2 py-1 rounded text-xs ${hasEnough ? 'text-green-400' : 'text-red-400'} cursor-help`}
+                        title={`${material.itemId.replace('-', ' ')}: ${materialSource}`}
+                      >
                         {hasEnough && <CheckCircle className="h-3 w-3" />}
                         <span>{material.itemId.replace('-', ' ')} x{material.quantity}</span>
                         {inventoryItem && (
                           <span className="text-gray-500">({inventoryItem.quantity})</span>
                         )}
+                        <span className="text-xs text-gray-400 ml-1">ⓘ</span>
                       </div>
                     );
                   })}

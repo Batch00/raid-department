@@ -120,6 +120,10 @@ body {
   box-shadow: 0 0 15px hsl(var(--rarity-legendary) / 0.3);
 }
 
+.panel-gear-upgrading {
+  border-color: rgb(251 146 60 / 0.4) !important;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

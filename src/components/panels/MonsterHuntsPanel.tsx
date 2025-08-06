@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sword, Zap, Shield, Clock, Battery, Play, Pause } from 'lucide-react';
-import { Monster, PlayerStats, Biome } from '@/types/gameTypes';
+import { Monster, PlayerStats, Biome, InventoryItem } from '@/types/gameTypes';
 
 interface MonsterHuntsPanelProps {
   playerStats: PlayerStats;
   updatePlayerStats: (stats: Partial<PlayerStats>) => void;
   updateMonsterDefeatedCount: (monsterId: string) => void;
+  inventory: InventoryItem[];
 }
 
 const biomes: Biome[] = [
@@ -96,7 +97,8 @@ const biomes: Biome[] = [
 export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({ 
   playerStats, 
   updatePlayerStats, 
-  updateMonsterDefeatedCount 
+  updateMonsterDefeatedCount,
+  inventory 
 }) => {
   const [selectedBiome, setSelectedBiome] = useState<string>('forest');
   const [monsters, setMonsters] = useState<Monster[]>(biomes.find(b => b.id === 'forest')?.monsters || []);
@@ -120,8 +122,35 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
     return () => clearInterval(interval);
   }, [playerStats.stamina, playerStats.maxStamina, playerStats.staminaRegenRate, updatePlayerStats]);
 
+  const getEquipmentBonus = () => {
+    const weapons = inventory.filter(item => item.type === 'equipment' && item.stats);
+    let attackSpeedBonus = 0;
+    let huntSpeedBonus = 0;
+    
+    weapons.forEach(weapon => {
+      if (weapon.stats?.['attack speed']) {
+        attackSpeedBonus += weapon.stats['attack speed'];
+      }
+      if (weapon.stats?.['hunt speed']) {
+        huntSpeedBonus += weapon.stats['hunt speed'];
+      }
+    });
+    
+    return { attackSpeedBonus, huntSpeedBonus };
+  };
+
+  const getModifiedHuntTime = (monster: Monster) => {
+    const { huntSpeedBonus } = getEquipmentBonus();
+    const skillBonus = (playerStats.skills.attackSpeed || 0) * 5; // 5% per level
+    const totalSpeedBonus = huntSpeedBonus + skillBonus;
+    const reduction = Math.min(totalSpeedBonus, 80) / 100; // Cap at 80% reduction
+    return Math.max(monster.huntTime * (1 - reduction), monster.huntTime * 0.2); // Minimum 20% of original time
+  };
+
   const startHunt = (monster: Monster) => {
     if (playerStats.stamina >= 10 && playerStats.activeHunts.length < 3) {
+      const modifiedHuntTime = getModifiedHuntTime(monster);
+      
       updatePlayerStats({
         stamina: playerStats.stamina - 10,
         activeHunts: [...playerStats.activeHunts, monster.id]
@@ -129,12 +158,12 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
 
       setActiveHunts(prev => ({
         ...prev,
-        [monster.id]: Date.now() + (monster.huntTime * 1000)
+        [monster.id]: Date.now() + (modifiedHuntTime * 1000)
       }));
 
       setTimeout(() => {
         completeHunt(monster);
-      }, monster.huntTime * 1000);
+      }, modifiedHuntTime * 1000);
     }
   };
 
@@ -150,6 +179,13 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
     });
 
     updateMonsterDefeatedCount(monster.id);
+    
+    // Level up skills through hunting
+    const newSkills = { ...playerStats.skills };
+    newSkills.attackSpeed = (newSkills.attackSpeed || 0) + 0.1;
+    newSkills.resourceGathering = (newSkills.resourceGathering || 0) + 0.05;
+    
+    updatePlayerStats({ skills: newSkills });
   };
 
   const getBiomeColor = (biomeId: string) => {
@@ -220,7 +256,12 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
                     <div className="text-xs text-yellow-400">💰 {monster.goldReward} gold/kill</div>
                     <div className="text-xs text-gray-400">
                       <Clock className="h-3 w-3 inline mr-1" />
-                      {monster.huntTime}s
+                      {Math.floor(getModifiedHuntTime(monster))}s
+                      {getModifiedHuntTime(monster) !== monster.huntTime && (
+                        <span className="text-green-400 ml-1">
+                          (was {monster.huntTime}s)
+                        </span>
+                      )}
                     </div>
                   </div>
                   {monster.defeatedCount >= 10 && (
