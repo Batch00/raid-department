@@ -6,12 +6,33 @@ import { PlayerStats } from '@/types/gameTypes';
 interface SkillTreePanelProps {
   playerStats: PlayerStats;
   updatePlayerStats: (stats: Partial<PlayerStats>) => void;
+  playerGold: number;
+  updatePlayerGold: (gold: number) => void;
 }
 
-export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({ playerStats, updatePlayerStats }) => {
+export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({ 
+  playerStats, 
+  updatePlayerStats, 
+  playerGold, 
+  updatePlayerGold 
+}) => {
+  const getUpgradeCost = (skillName: string) => {
+    const currentLevel = playerStats.skills[skillName] || 0;
+    return (currentLevel + 1) * 500; // Cost increases per level
+  };
+
+  const canUpgradeSkill = (skillName: string) => {
+    const currentLevel = playerStats.skills[skillName] || 0;
+    const cost = getUpgradeCost(skillName);
+    return currentLevel < 10 && playerGold >= cost;
+  };
+
   const upgradeSkill = (skillName: string) => {
     const currentLevel = playerStats.skills[skillName] || 0;
-    if (currentLevel < 10) {
+    const cost = getUpgradeCost(skillName);
+    
+    if (canUpgradeSkill(skillName)) {
+      updatePlayerGold(playerGold - cost);
       updatePlayerStats({
         skills: {
           ...playerStats.skills,
@@ -47,14 +68,19 @@ export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({ playerStats, upd
                   style={{ width: `${(getSkillLevel('attackSpeed') / 10) * 100}%` }}
                 />
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => upgradeSkill('attackSpeed')}
-                disabled={getSkillLevel('attackSpeed') >= 10}
-                className="bg-yellow-600 hover:bg-yellow-500"
-              >
-                Upgrade (+5% hunt speed)
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button 
+                  size="sm" 
+                  onClick={() => upgradeSkill('attackSpeed')}
+                  disabled={!canUpgradeSkill('attackSpeed')}
+                  className="bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-600"
+                >
+                  Upgrade (+5% hunt speed)
+                </Button>
+                <span className="text-xs text-yellow-400">
+                  💰 {getUpgradeCost('attackSpeed')}
+                </span>
+              </div>
             </div>
             <div>
               <div className="flex justify-between mb-1">
@@ -67,14 +93,19 @@ export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({ playerStats, upd
                   style={{ width: `${(getSkillLevel('criticalStrike') / 10) * 100}%` }}
                 />
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => upgradeSkill('criticalStrike')}
-                disabled={getSkillLevel('criticalStrike') >= 10}
-                className="bg-yellow-600 hover:bg-yellow-500"
-              >
-                Upgrade (+3% crit chance)
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button 
+                  size="sm" 
+                  onClick={() => upgradeSkill('criticalStrike')}
+                  disabled={!canUpgradeSkill('criticalStrike')}
+                  className="bg-yellow-600 hover:bg-yellow-500 disabled:bg-gray-600"
+                >
+                  Upgrade (+3% crit chance)
+                </Button>
+                <span className="text-xs text-yellow-400">
+                  💰 {getUpgradeCost('criticalStrike')}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -96,14 +127,19 @@ export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({ playerStats, upd
                   style={{ width: `${(getSkillLevel('resourceGathering') / 10) * 100}%` }}
                 />
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => upgradeSkill('resourceGathering')}
-                disabled={getSkillLevel('resourceGathering') >= 10}
-                className="bg-green-600 hover:bg-green-500"
-              >
-                Upgrade (+10% drop rate)
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button 
+                  size="sm" 
+                  onClick={() => upgradeSkill('resourceGathering')}
+                  disabled={!canUpgradeSkill('resourceGathering')}
+                  className="bg-green-600 hover:bg-green-500 disabled:bg-gray-600"
+                >
+                  Upgrade (+10% drop rate)
+                </Button>
+                <span className="text-xs text-green-400">
+                  💰 {getUpgradeCost('resourceGathering')}
+                </span>
+              </div>
             </div>
             <div>
               <div className="flex justify-between mb-1">
@@ -116,14 +152,19 @@ export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({ playerStats, upd
                   style={{ width: `${(getSkillLevel('staminaRecovery') / 10) * 100}%` }}
                 />
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => upgradeSkill('staminaRecovery')}
-                disabled={getSkillLevel('staminaRecovery') >= 10}
-                className="bg-green-600 hover:bg-green-500"
-              >
-                Upgrade (+15% regen rate)
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button 
+                  size="sm" 
+                  onClick={() => upgradeSkill('staminaRecovery')}
+                  disabled={!canUpgradeSkill('staminaRecovery')}
+                  className="bg-green-600 hover:bg-green-500 disabled:bg-gray-600"
+                >
+                  Upgrade (+15% regen rate)
+                </Button>
+                <span className="text-xs text-green-400">
+                  💰 {getUpgradeCost('staminaRecovery')}
+                </span>
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-export type PanelType = 'monster-hunts' | 'inventory' | 'skill-tree' | 'marketplace' | 'crafting' | 'gear-upgrading' | 'player-profile' | 'achievements' | 'leaderboards' | 'empty';
+export type PanelType = 'monster-hunts' | 'inventory' | 'skill-tree' | 'marketplace' | 'crafting' | 'gear-upgrading' | 'player-profile' | 'achievements' | 'leaderboards' | 'hunt-history' | 'empty';
 
 export interface WindowPanel {
   id: string;

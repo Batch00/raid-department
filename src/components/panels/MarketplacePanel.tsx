@@ -11,28 +11,46 @@ interface MarketplacePanelProps {
 
 const marketplaceItems = [
   {
-    item: { id: 'shadow-essence', name: 'Shadow Essence', icon: '🌑', rarity: 'uncommon', quantity: 10 } as InventoryItem,
-    price: 1500,
+    item: { id: 'shadow-essence', name: 'Shadow Essence', icon: '🌑', rarity: 'uncommon', quantity: 3, type: 'material' } as InventoryItem,
+    price: 500,
     seller: 'DarkHunter92',
     trend: 'up'
   },
   {
-    item: { id: 'crystal-shard', name: 'Crystal Shard', icon: '💎', rarity: 'rare', quantity: 5 } as InventoryItem,
-    price: 2000,
+    item: { id: 'iron-ore', name: 'Iron Ore', icon: '⛏️', rarity: 'common', quantity: 5, type: 'material' } as InventoryItem,
+    price: 200,
+    seller: 'Miner101',
+    trend: 'stable'
+  },
+  {
+    item: { id: 'crystal-shard', name: 'Crystal Shard', icon: '💎', rarity: 'rare', quantity: 2, type: 'material' } as InventoryItem,
+    price: 800,
     seller: 'CrystalMage',
     trend: 'down'
+  },
+  {
+    item: { id: 'leather', name: 'Leather', icon: '🟤', rarity: 'common', quantity: 4, type: 'material' } as InventoryItem,
+    price: 150,
+    seller: 'Tanner',
+    trend: 'stable'
+  },
+  {
+    item: { id: 'herb', name: 'Herb', icon: '🌿', rarity: 'common', quantity: 8, type: 'material' } as InventoryItem,
+    price: 100,
+    seller: 'Herbalist',
+    trend: 'up'
+  },
+  {
+    item: { id: 'pure-water', name: 'Pure Water', icon: '💧', rarity: 'common', quantity: 3, type: 'material' } as InventoryItem,
+    price: 50,
+    seller: 'WaterMerchant',
+    trend: 'stable'
   },
   {
     item: { id: 'time-boost-potion', name: 'Time Boost Potion', icon: '⏰', rarity: 'epic', quantity: 1, type: 'consumable' } as InventoryItem,
     price: 5000,
     seller: 'AlchemistPro',
     trend: 'up'
-  },
-  {
-    item: { id: 'hunters-bow', name: "Hunter's Bow", icon: '🏹', rarity: 'rare', quantity: 1, type: 'equipment', stats: { 'attack speed': 15, 'crit chance': 10 } } as InventoryItem,
-    price: 8000,
-    seller: 'ElvenArcher',
-    trend: 'stable'
   }
 ];
 

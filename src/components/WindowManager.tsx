@@ -11,116 +11,145 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
   const [panels, setPanels] = useState<WindowPanel>({
     id: 'root',
     type: 'empty',
-    direction: 'horizontal',
+    direction: 'vertical',
     children: [
-      { id: 'panel-1', type: 'monster-hunts', size: 50 },
-      { id: 'panel-2', type: 'inventory', size: 50 }
+      {
+        id: 'top-row',
+        type: 'empty',
+        direction: 'horizontal',
+        children: [
+          {
+            id: 'player-panel',
+            type: 'player-profile',
+            size: 25
+          },
+          {
+            id: 'inventory-panel',
+            type: 'inventory',
+            size: 25
+          },
+          {
+            id: 'skills-panel',
+            type: 'skill-tree',
+            size: 25
+          },
+          {
+            id: 'achievements-panel',
+            type: 'achievements',
+            size: 25
+          }
+        ],
+        size: 30
+      },
+      {
+        id: 'middle-row',
+        type: 'empty',
+        direction: 'horizontal',
+        children: [
+          {
+            id: 'hunt-panel',
+            type: 'monster-hunts',
+            size: 40
+          },
+          {
+            id: 'marketplace-panel',
+            type: 'marketplace',
+            size: 30
+          },
+          {
+            id: 'history-panel',
+            type: 'hunt-history',
+            size: 30
+          }
+        ],
+        size: 40
+      },
+      {
+        id: 'bottom-row',
+        type: 'empty',
+        direction: 'horizontal',
+        children: [
+          {
+            id: 'crafting-panel',
+            type: 'crafting',
+            size: 50
+          },
+          {
+            id: 'upgrading-panel',
+            type: 'gear-upgrading',
+            size: 50
+          }
+        ],
+        size: 30
+      }
     ]
   });
 
   const [playerStats, setPlayerStats] = useState<PlayerStats>({
     stamina: 100,
     maxStamina: 100,
-    staminaRegenRate: 5, // per minute
+    staminaRegenRate: 10,
     activeHunts: [],
-    skills: {
-      attackSpeed: 2,
-      criticalStrike: 1,
-      resourceGathering: 3,
-      staminaRecovery: 1
-    }
+    skills: {}
   });
 
   const [inventory, setInventory] = useState<InventoryItem[]>([
-    { id: 'crystal-fang', name: 'Crystal Fang', icon: '💎', rarity: 'epic', quantity: 3 },
-    { id: 'wolf-hide', name: 'Wolf Hide', icon: '🐺', rarity: 'common', quantity: 15 },
-    { id: 'shadow-core', name: 'Shadow Core', icon: '🌑', rarity: 'legendary', quantity: 1 },
-    { id: 'drake-scale', name: 'Drake Scale', icon: '🛡️', rarity: 'rare', quantity: 7 },
-    { id: 'ancient-bone', name: 'Ancient Bone', icon: '🦴', rarity: 'uncommon', quantity: 12 },
-    { id: 'mystic-ore', name: 'Mystic Ore', icon: '⚡', rarity: 'epic', quantity: 5 }
+    { id: 'iron-sword', name: 'Iron Sword', icon: '⚔️', rarity: 'common', quantity: 1, type: 'equipment', stats: { 'attack speed': 10 } },
+    { id: 'health-potion', name: 'Health Potion', icon: '🧪', rarity: 'common', quantity: 5, type: 'consumable' },
+    { id: 'shadow-essence', name: 'Shadow Essence', icon: '🌑', rarity: 'uncommon', quantity: 2, type: 'material' }
   ]);
 
-  const [playerGold, setPlayerGold] = useState(25000);
-
+  const [playerGold, setPlayerGold] = useState(10000);
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile>({
-    username: 'DragonSlayer',
+    username: 'ShadowHunter',
     faction: 'Shadow Hunters',
-    level: 15,
-    xp: 45000,
-    xpToNextLevel: 60000,
-    avatar: '🗡️',
-    equippedGear: {
-      weapon: { id: 'starter-sword', name: 'Starter Sword', icon: '⚔️', rarity: 'common', quantity: 1, type: 'equipment', stats: { 'attack speed': 10 } },
-      armor: undefined,
-      accessory: undefined
-    },
-    totalMonstersHunted: 234,
-    totalGoldEarned: 125000,
-    totalIdleTime: 86400 // 24 hours in seconds
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 1000,
+    avatar: '🦸‍♂️',
+    equippedGear: {},
+    totalMonstersHunted: 0,
+    totalGoldEarned: 0,
+    totalIdleTime: 0
   });
-
   const [achievements, setAchievements] = useState<Achievement[]>([
     {
       id: 'first-hunt',
       name: 'First Hunt',
       description: 'Complete your first monster hunt',
-      icon: '🗡️',
-      isCompleted: true,
-      progress: 1,
+      icon: '🎯',
+      isCompleted: false,
+      progress: 0,
       maxProgress: 1,
       type: 'monsters'
     },
     {
-      id: 'monster-slayer',
-      name: 'Monster Slayer',
-      description: 'Hunt 100 monsters',
-      icon: '💀',
-      isCompleted: false,
-      progress: 234,
-      maxProgress: 100,
-      type: 'monsters'
-    },
-    {
-      id: 'craft-master',
-      name: 'Craft Master',
-      description: 'Craft 50 items',
+      id: 'master-crafter',
+      name: 'Master Crafter',
+      description: 'Craft 10 items',
       icon: '🔨',
       isCompleted: false,
-      progress: 12,
-      maxProgress: 50,
+      progress: 0,
+      maxProgress: 10,
       type: 'crafting'
     },
     {
-      id: 'gold-hoarder',
-      name: 'Gold Hoarder',
-      description: 'Earn 100,000 gold',
+      id: 'gold-collector',
+      name: 'Gold Collector',
+      description: 'Earn 50,000 gold',
       icon: '💰',
-      isCompleted: true,
-      progress: 125000,
-      maxProgress: 100000,
+      isCompleted: false,
+      progress: 0,
+      maxProgress: 50000,
       type: 'gold'
-    },
-    {
-      id: 'skill-adept',
-      name: 'Skill Adept',
-      description: 'Reach level 5 in any skill',
-      icon: '📚',
-      isCompleted: false,
-      progress: 3,
-      maxProgress: 5,
-      type: 'skills'
-    },
-    {
-      id: 'idle-master',
-      name: 'Idle Master',
-      description: 'Accumulate 72 hours of idle time',
-      icon: '⏰',
-      isCompleted: false,
-      progress: 24,
-      maxProgress: 72,
-      type: 'idle'
     }
   ]);
+  const [huntHistory, setHuntHistory] = useState<any[]>([]);
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  const addToHuntHistory = (entry: any) => {
+    setHuntHistory(prev => [entry, ...prev].slice(0, 100)); // Keep last 100 entries
+  };
 
   const updatePlayerProfile = (updates: Partial<PlayerProfile>) => {
     setPlayerProfile(prev => ({ ...prev, ...updates }));
@@ -130,24 +159,37 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
     setAchievements(newAchievements);
   };
 
-  const updatePlayerStats = (updates: Partial<PlayerStats>) => {
-    setPlayerStats(prev => ({ ...prev, ...updates }));
+  const updatePlayerStats = (stats: Partial<PlayerStats>) => {
+    setPlayerStats(prev => ({ ...prev, ...stats }));
   };
 
-  const addToInventory = (newItem: InventoryItem) => {
+  const addToInventory = (item: InventoryItem) => {
     setInventory(prev => {
-      const existingIndex = prev.findIndex(item => item.id === newItem.id);
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + newItem.quantity
-        };
-        return updated;
-      } else {
-        return [...prev, newItem];
+      const existingItem = prev.find(i => i.id === item.id);
+      if (existingItem) {
+        return prev.map(i => 
+          i.id === item.id 
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
+        );
       }
+      return [...prev, item];
     });
+  };
+
+  const equipItem = (item: InventoryItem) => {
+    if (!item.type || item.type !== 'equipment') return;
+    
+    const slotType = item.stats && 'defense' in item.stats ? 'armor' : 
+                     item.stats && ('attack speed' in item.stats || 'crit chance' in item.stats) ? 'weapon' : 'accessory';
+    
+    setPlayerProfile(prev => ({
+      ...prev,
+      equippedGear: {
+        ...prev.equippedGear,
+        [slotType]: item
+      }
+    }));
   };
 
   const removeFromInventory = (itemId: string, quantity: number) => {
@@ -164,29 +206,89 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
     setPlayerGold(gold);
   };
 
-  const updateMonsterDefeatedCount = (monsterId: string) => {
-    // This would normally update monster data in a more complex state
+  const updateMonsterDefeatedCount = (monsterId: string, loot: InventoryItem[], goldReward: number, xpGained: number) => {
     console.log(`Monster ${monsterId} defeated!`);
+    
+    // Add loot to inventory
+    loot.forEach(item => addToInventory(item));
+    
+    // Add gold and XP
+    setPlayerGold(prev => prev + goldReward);
+    setPlayerProfile(prev => {
+      const newXp = prev.xp + xpGained;
+      const levelUp = newXp >= prev.xpToNextLevel;
+      return {
+        ...prev,
+        xp: levelUp ? newXp - prev.xpToNextLevel : newXp,
+        level: levelUp ? prev.level + 1 : prev.level,
+        xpToNextLevel: levelUp ? prev.xpToNextLevel * 1.5 : prev.xpToNextLevel,
+        totalMonstersHunted: prev.totalMonstersHunted + 1,
+        totalGoldEarned: prev.totalGoldEarned + goldReward
+      };
+    });
+
+    // Add to hunt history
+    addToHuntHistory({
+      id: Date.now().toString(),
+      monsterId,
+      timeCompleted: new Date().toLocaleTimeString(),
+      loot,
+      goldEarned: goldReward,
+      xpGained
+    });
+
+    // Update achievements
+    setAchievements(prev => prev.map(achievement => {
+      if (achievement.id === 'first-hunt' && !achievement.isCompleted) {
+        return { ...achievement, progress: 1, isCompleted: true };
+      }
+      if (achievement.id === 'gold-collector') {
+        const newProgress = Math.min(achievement.progress + goldReward, achievement.maxProgress);
+        return { ...achievement, progress: newProgress, isCompleted: newProgress >= achievement.maxProgress };
+      }
+      return achievement;
+    }));
   };
 
   return (
     <WindowManagerProvider panels={panels} setPanels={setPanels}>
       <div className="h-screen bg-background text-foreground">
-        <PanelRenderer 
-          panel={panels} 
-          playerStats={playerStats}
-          updatePlayerStats={updatePlayerStats}
-          inventory={inventory}
-          addToInventory={addToInventory}
-          removeFromInventory={removeFromInventory}
-          playerGold={playerGold}
-          updatePlayerGold={updatePlayerGold}
-          updateMonsterDefeatedCount={updateMonsterDefeatedCount}
-          playerProfile={playerProfile}
-          updatePlayerProfile={updatePlayerProfile}
-          achievements={achievements}
-          updateAchievements={updateAchievements}
-        />
+        <div className="absolute top-4 right-4 z-50 flex gap-2">
+          <button 
+            onClick={() => setZoomLevel(prev => Math.max(0.5, prev - 0.1))}
+            className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent"
+          >
+            Zoom Out
+          </button>
+          <span className="px-3 py-1 bg-card border border-border rounded text-sm">
+            {Math.round(zoomLevel * 100)}%
+          </span>
+          <button 
+            onClick={() => setZoomLevel(prev => Math.min(2, prev + 0.1))}
+            className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent"
+          >
+            Zoom In
+          </button>
+        </div>
+        <div style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', width: `${100 / zoomLevel}%`, height: `${100 / zoomLevel}%` }}>
+          <PanelRenderer 
+            panel={panels} 
+            playerStats={playerStats}
+            updatePlayerStats={updatePlayerStats}
+            inventory={inventory}
+            addToInventory={addToInventory}
+            removeFromInventory={removeFromInventory}
+            playerGold={playerGold}
+            updatePlayerGold={updatePlayerGold}
+            updateMonsterDefeatedCount={updateMonsterDefeatedCount}
+            playerProfile={playerProfile}
+            updatePlayerProfile={updatePlayerProfile}
+            achievements={achievements}
+            updateAchievements={updateAchievements}
+            equipItem={equipItem}
+            huntHistory={huntHistory}
+          />
+        </div>
       </div>
     </WindowManagerProvider>
   );

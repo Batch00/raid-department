@@ -12,6 +12,7 @@ import { GearUpgradingPanel } from './panels/GearUpgradingPanel';
 import { PlayerProfilePanel } from './panels/PlayerProfilePanel';
 import { AchievementsPanel } from './panels/AchievementsPanel';
 import { LeaderboardsPanel } from './panels/LeaderboardsPanel';
+import { HuntHistoryPanel } from './panels/HuntHistoryPanel';
 
 interface PanelContentProps {
   panel: WindowPanel;
@@ -22,11 +23,13 @@ interface PanelContentProps {
   removeFromInventory: (itemId: string, quantity: number) => void;
   playerGold: number;
   updatePlayerGold: (gold: number) => void;
-  updateMonsterDefeatedCount: (monsterId: string) => void;
+  updateMonsterDefeatedCount: (monsterId: string, loot: InventoryItem[], goldReward: number, xpGained: number) => void;
   playerProfile: PlayerProfile;
   updatePlayerProfile: (updates: Partial<PlayerProfile>) => void;
   achievements: Achievement[];
   updateAchievements: (achievements: Achievement[]) => void;
+  equipItem?: (item: InventoryItem) => void;
+  huntHistory?: any[];
 }
 
 export const PanelContent: React.FC<PanelContentProps> = ({ 
@@ -42,7 +45,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
   playerProfile,
   updatePlayerProfile,
   achievements,
-  updateAchievements
+  updateAchievements,
+  equipItem,
+  huntHistory
 }) => {
   const { splitPanel, setPanelType, removePanel } = useWindowManager();
 
@@ -56,6 +61,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
     { value: 'player-profile', label: 'Player Profile' },
     { value: 'achievements', label: 'Achievements' },
     { value: 'leaderboards', label: 'Leaderboards' },
+    { value: 'hunt-history', label: 'Hunt History' },
     { value: 'empty', label: 'Empty' }
   ];
 
@@ -70,6 +76,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       case 'player-profile': return <User className="h-4 w-4" />;
       case 'achievements': return <Trophy className="h-4 w-4" />;
       case 'leaderboards': return <BarChart3 className="h-4 w-4" />;
+      case 'hunt-history': return <Sword className="h-4 w-4" />;
       default: return <Plus className="h-4 w-4" />;
     }
   };
@@ -85,6 +92,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
       case 'player-profile': return 'panel-player-profile';
       case 'achievements': return 'panel-achievements';
       case 'leaderboards': return 'panel-leaderboards';
+      case 'hunt-history': return 'panel-monster-hunt';
       default: return '';
     }
   };
@@ -102,12 +110,14 @@ export const PanelContent: React.FC<PanelContentProps> = ({
           />
         );
       case 'inventory':
-        return <InventoryPanel inventory={inventory} />;
+        return <InventoryPanel inventory={inventory} equipItem={equipItem} />;
       case 'skill-tree':
         return (
           <SkillTreePanel 
             playerStats={playerStats}
             updatePlayerStats={updatePlayerStats}
+            playerGold={playerGold}
+            updatePlayerGold={updatePlayerGold}
           />
         );
       case 'marketplace':
@@ -153,6 +163,8 @@ export const PanelContent: React.FC<PanelContentProps> = ({
         );
       case 'leaderboards':
         return <LeaderboardsPanel />;
+      case 'hunt-history':
+        return <HuntHistoryPanel huntHistory={huntHistory || []} />;
       case 'empty':
       default:
         return (

@@ -6,7 +6,7 @@ import { Monster, PlayerStats, Biome, InventoryItem, PlayerProfile } from '@/typ
 interface MonsterHuntsPanelProps {
   playerStats: PlayerStats;
   updatePlayerStats: (stats: Partial<PlayerStats>) => void;
-  updateMonsterDefeatedCount: (monsterId: string) => void;
+  updateMonsterDefeatedCount: (monsterId: string, loot: InventoryItem[], goldReward: number, xpGained: number) => void;
   inventory: InventoryItem[];
   playerProfile: PlayerProfile;
 }
@@ -234,7 +234,18 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
       return newHunts;
     });
 
-    updateMonsterDefeatedCount(monster.id);
+    // Calculate loot with drop rate bonuses
+    const resourceGatheringBonus = playerStats.skills.resourceGathering || 0;
+    const dropRateMultiplier = 1 + (resourceGatheringBonus * 0.1); // 10% per level
+    
+    const actualDrops = monster.drops.map(drop => ({
+      ...drop,
+      quantity: Math.ceil(drop.quantity * dropRateMultiplier)
+    }));
+
+    const xpGained = monster.level * 10;
+    
+    updateMonsterDefeatedCount(monster.id, actualDrops, monster.goldReward, xpGained);
     
     // Level up skills through hunting
     const newSkills = { ...playerStats.skills };

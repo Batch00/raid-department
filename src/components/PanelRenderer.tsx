@@ -12,11 +12,13 @@ interface PanelRendererProps {
   removeFromInventory: (itemId: string, quantity: number) => void;
   playerGold: number;
   updatePlayerGold: (gold: number) => void;
-  updateMonsterDefeatedCount: (monsterId: string) => void;
+  updateMonsterDefeatedCount: (monsterId: string, loot: InventoryItem[], goldReward: number, xpGained: number) => void;
   playerProfile: PlayerProfile;
   updatePlayerProfile: (updates: Partial<PlayerProfile>) => void;
   achievements: Achievement[];
   updateAchievements: (achievements: Achievement[]) => void;
+  equipItem?: (item: InventoryItem) => void;
+  huntHistory?: any[];
 }
 
 export const PanelRenderer: React.FC<PanelRendererProps> = ({ 
@@ -32,7 +34,9 @@ export const PanelRenderer: React.FC<PanelRendererProps> = ({
   playerProfile,
   updatePlayerProfile,
   achievements,
-  updateAchievements
+  updateAchievements,
+  equipItem,
+  huntHistory
 }) => {
   if (panel.children && panel.children.length > 0) {
     return (
@@ -54,6 +58,8 @@ export const PanelRenderer: React.FC<PanelRendererProps> = ({
                 updatePlayerProfile={updatePlayerProfile}
                 achievements={achievements}
                 updateAchievements={updateAchievements}
+                equipItem={equipItem}
+                huntHistory={huntHistory}
               />
             </ResizablePanel>
             {index < panel.children!.length - 1 && (
@@ -80,6 +86,8 @@ export const PanelRenderer: React.FC<PanelRendererProps> = ({
       updatePlayerProfile={updatePlayerProfile}
       achievements={achievements}
       updateAchievements={updateAchievements}
+      equipItem={equipItem}
+      huntHistory={huntHistory}
     />
   );
 };

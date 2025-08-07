@@ -104,6 +104,15 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
       
       // Add crafted item
       addToInventory(recipe.result);
+
+      // Prompt to equip if it's equipment
+      if (recipe.result.type === 'equipment') {
+        setTimeout(() => {
+          if (confirm(`${recipe.result.name} crafted! Would you like to equip it now?`)) {
+            // This would need equipItem passed as prop
+          }
+        }, 100);
+      }
     }
   };
 
