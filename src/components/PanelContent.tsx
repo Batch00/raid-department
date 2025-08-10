@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, SplitSquareHorizontal, SplitSquareVertical, Sword, Package, BookOpen, ShoppingCart, Hammer, Wrench, User, Trophy, BarChart3 } from 'lucide-react';
+import { Plus, Minus, SplitSquareHorizontal, SplitSquareVertical, Sword, Package, BookOpen, ShoppingCart, Hammer, Wrench, User, Trophy, BarChart3, X } from 'lucide-react';
 import { WindowPanel, PanelType, InventoryItem, PlayerStats, PlayerProfile, Achievement } from '@/types/gameTypes';
 import { useWindowManager } from './WindowManagerProvider';
 import { MonsterHuntsPanel } from './panels/MonsterHuntsPanel';
@@ -134,6 +134,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             inventory={inventory}
             addToInventory={addToInventory}
             removeFromInventory={removeFromInventory}
+            equipItem={equipItem}
           />
         );
       case 'gear-upgrading':
@@ -219,9 +220,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
               size="icon"
               variant="ghost"
               onClick={() => removePanel(panel.id)}
-              className="h-7 w-7 hover:bg-destructive/20"
+              className="h-7 w-7 hover:bg-destructive/20 text-destructive"
             >
-              <Minus className="h-3 w-3" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </div>

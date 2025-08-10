@@ -2,6 +2,7 @@ import React from 'react';
 import { BookOpen, Zap, Shield, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlayerStats } from '@/types/gameTypes';
+import { toast } from 'sonner';
 
 interface SkillTreePanelProps {
   playerStats: PlayerStats;
@@ -38,6 +39,14 @@ export const SkillTreePanel: React.FC<SkillTreePanelProps> = ({
           ...playerStats.skills,
           [skillName]: currentLevel + 1
         }
+      });
+
+      toast.success(`Skill Upgraded!`, {
+        description: `${skillName.replace(/([A-Z])/g, ' $1').trim()} upgraded to level ${currentLevel + 1}`
+      });
+    } else {
+      toast.error("Cannot upgrade skill", {
+        description: currentLevel >= 10 ? "Skill already at maximum level" : "Not enough gold"
       });
     }
   };

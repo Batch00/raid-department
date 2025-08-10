@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sword, Zap, Shield, Clock, Battery, Play, Pause } from 'lucide-react';
 import { Monster, PlayerStats, Biome, InventoryItem, PlayerProfile } from '@/types/gameTypes';
+import { toast } from 'sonner';
 
 interface MonsterHuntsPanelProps {
   playerStats: PlayerStats;
@@ -217,9 +218,17 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
         [monster.id]: Date.now() + (modifiedHuntTime * 1000)
       }));
 
+      toast.success(`Hunt Started!`, {
+        description: `Hunting ${monster.name} (${Math.floor(modifiedHuntTime)}s)`
+      });
+
       setTimeout(() => {
         completeHunt(monster);
       }, modifiedHuntTime * 1000);
+    } else {
+      toast.error("Cannot start hunt", {
+        description: playerStats.stamina < 10 ? "Not enough stamina" : "Too many active hunts"
+      });
     }
   };
 
@@ -253,6 +262,19 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
     newSkills.resourceGathering = (newSkills.resourceGathering || 0) + 0.05;
     
     updatePlayerStats({ skills: newSkills });
+
+    // Show hunt completion toast
+    toast.success(`${monster.name} Defeated!`, {
+      description: `+${monster.goldReward} gold, +${xpGained} XP`,
+      action: {
+        label: "View Loot",
+        onClick: () => {
+          toast.info("Loot Obtained", {
+            description: actualDrops.map(drop => `${drop.name} x${drop.quantity}`).join(', ')
+          });
+        }
+      }
+    });
   };
 
   const getBiomeColor = (biomeId: string) => {

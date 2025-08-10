@@ -2,11 +2,13 @@ import React from 'react';
 import { Hammer, Sword, Shield, Gem, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InventoryItem, CraftingRecipe } from '@/types/gameTypes';
+import { toast } from 'sonner';
 
 interface CraftingPanelProps {
   inventory: InventoryItem[];
   addToInventory: (item: InventoryItem) => void;
   removeFromInventory: (itemId: string, quantity: number) => void;
+  equipItem?: (item: InventoryItem) => void;
 }
 
 const craftingRecipes: CraftingRecipe[] = [
@@ -86,7 +88,8 @@ const craftingRecipes: CraftingRecipe[] = [
 export const CraftingPanel: React.FC<CraftingPanelProps> = ({ 
   inventory, 
   addToInventory, 
-  removeFromInventory 
+  removeFromInventory,
+  equipItem
 }) => {
   const canCraft = (recipe: CraftingRecipe): boolean => {
     return recipe.materials.every(material => {
@@ -105,14 +108,21 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
       // Add crafted item
       addToInventory(recipe.result);
 
-      // Prompt to equip if it's equipment
-      if (recipe.result.type === 'equipment') {
-        setTimeout(() => {
-          if (confirm(`${recipe.result.name} crafted! Would you like to equip it now?`)) {
-            // This would need equipItem passed as prop
+      // Show success toast
+      toast.success(`Crafted ${recipe.result.name}!`, {
+        description: `${recipe.result.name} has been added to your inventory.`,
+        action: recipe.result.type === 'equipment' && equipItem ? {
+          label: "Equip Now",
+          onClick: () => {
+            equipItem(recipe.result);
+            toast.success(`Equipped ${recipe.result.name}!`);
           }
-        }, 100);
-      }
+        } : undefined
+      });
+    } else {
+      toast.error("Cannot craft item", {
+        description: "You don't have enough materials to craft this item."
+      });
     }
   };
 
@@ -214,9 +224,9 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
                 size="sm" 
                 onClick={() => craftItem(recipe)}
                 disabled={!craftable}
-                className={`bg-${categoryColor}-600 hover:bg-${categoryColor}-500 text-white disabled:bg-gray-600`}
+                className={`${craftable ? `bg-${categoryColor}-600 hover:bg-${categoryColor}-500 text-white` : 'bg-muted text-muted-foreground cursor-not-allowed'} transition-all`}
               >
-                Craft {recipe.category === 'consumable' ? 'Item' : recipe.category === 'weapon' ? 'Weapon' : 'Armor'}
+                {craftable ? 'Craft' : 'Insufficient Materials'} {recipe.category === 'consumable' ? 'Item' : recipe.category === 'weapon' ? 'Weapon' : 'Armor'}
               </Button>
             </div>
           );

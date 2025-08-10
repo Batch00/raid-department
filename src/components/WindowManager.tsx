@@ -253,19 +253,19 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
   return (
     <WindowManagerProvider panels={panels} setPanels={setPanels}>
       <div className="h-screen bg-background text-foreground">
-        <div className="absolute top-4 right-4 z-50 flex gap-2">
+        <div className="fixed bottom-4 left-4 z-50 flex gap-2">
           <button 
             onClick={() => setZoomLevel(prev => Math.max(0.5, prev - 0.1))}
-            className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent"
+            className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent shadow-lg"
           >
             Zoom Out
           </button>
-          <span className="px-3 py-1 bg-card border border-border rounded text-sm">
+          <span className="px-3 py-1 bg-card border border-border rounded text-sm shadow-lg">
             {Math.round(zoomLevel * 100)}%
           </span>
           <button 
             onClick={() => setZoomLevel(prev => Math.min(2, prev + 0.1))}
-            className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent"
+            className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent shadow-lg"
           >
             Zoom In
           </button>
