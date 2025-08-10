@@ -108,18 +108,14 @@ export const CraftingPanel: React.FC<CraftingPanelProps> = ({
       // Add crafted item
       addToInventory(recipe.result);
 
-      // Show success toast with auto-equip option
-      const statsText = recipe.result.stats ? Object.entries(recipe.result.stats).map(([stat, value]) => `+${value}${stat.includes('rate') || stat.includes('speed') || stat.includes('drop') ? '%' : ''} ${stat}`).join(', ') : '';
-      
-      toast.success(`Successfully crafted ${recipe.result.name}!`, {
-        description: `${recipe.result.name} has been added to your inventory. ${statsText ? `Stats: ${statsText}` : ''}`,
+      // Show success toast
+      toast.success(`Crafted ${recipe.result.name}!`, {
+        description: `${recipe.result.name} has been added to your inventory.`,
         action: recipe.result.type === 'equipment' && equipItem ? {
           label: "Equip Now",
           onClick: () => {
             equipItem(recipe.result);
-            toast.success(`Auto-equipped ${recipe.result.name}!`, {
-              description: "Your new gear is ready for battle!"
-            });
+            toast.success(`Equipped ${recipe.result.name}!`);
           }
         } : undefined
       });

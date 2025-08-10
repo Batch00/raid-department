@@ -180,56 +180,33 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
   }, [playerStats.stamina, playerStats.maxStamina, playerStats.staminaRegenRate, updatePlayerStats]);
 
   const getEquipmentBonus = () => {
+    const weapons = inventory.filter(item => item.type === 'equipment' && item.stats);
+    let attackSpeedBonus = 0;
     let huntSpeedBonus = 0;
-    let lootDropBonus = 0;
-    let xpBonus = 0;
     
-    // Check equipped gear from player profile
-    if (playerProfile.equippedGear.weapon?.stats) {
-      const stats = playerProfile.equippedGear.weapon.stats;
-      huntSpeedBonus += stats['hunt speed'] || stats['attack speed'] || 0;
-      lootDropBonus += stats['loot drop'] || 0;
-      xpBonus += stats['xp bonus'] || 0;
-    }
+    weapons.forEach(weapon => {
+      if (weapon.stats?.['attack speed']) {
+        attackSpeedBonus += weapon.stats['attack speed'];
+      }
+      if (weapon.stats?.['hunt speed']) {
+        huntSpeedBonus += weapon.stats['hunt speed'];
+      }
+    });
     
-    if (playerProfile.equippedGear.armor?.stats) {
-      const stats = playerProfile.equippedGear.armor.stats;
-      huntSpeedBonus += stats['hunt speed'] || 0;
-      lootDropBonus += stats['loot drop'] || 0;
-      xpBonus += stats['xp bonus'] || 0;
-    }
-    
-    if (playerProfile.equippedGear.accessory?.stats) {
-      const stats = playerProfile.equippedGear.accessory.stats;
-      huntSpeedBonus += stats['hunt speed'] || 0;
-      lootDropBonus += stats['loot drop'] || stats['drop rate'] || 0;
-      xpBonus += stats['xp bonus'] || 0;
-    }
-    
-    return { huntSpeedBonus, lootDropBonus, xpBonus };
+    return { attackSpeedBonus, huntSpeedBonus };
   };
 
   const getModifiedHuntTime = (monster: Monster) => {
     const { huntSpeedBonus } = getEquipmentBonus();
-    const skillBonus = (playerStats.skills.combat || 0) * 3; // 3% per level
+    const skillBonus = (playerStats.skills.attackSpeed || 0) * 5; // 5% per level
     const totalSpeedBonus = huntSpeedBonus + skillBonus;
-    const reduction = Math.min(totalSpeedBonus, 75) / 100; // Cap at 75% reduction
-    return Math.max(monster.huntTime * (1 - reduction), monster.huntTime * 0.25); // Minimum 25% of original time
+    const reduction = Math.min(totalSpeedBonus, 80) / 100; // Cap at 80% reduction
+    return Math.max(monster.huntTime * (1 - reduction), monster.huntTime * 0.2); // Minimum 20% of original time
   };
 
-  const startHunt = (monster: Monster, difficulty: 'easy' | 'normal' | 'hard' = 'normal') => {
+  const startHunt = (monster: Monster) => {
     if (playerStats.stamina >= 10 && playerStats.activeHunts.length < 3) {
-      let modifiedHuntTime = getModifiedHuntTime(monster);
-      
-      // Apply difficulty modifiers
-      const difficultyModifiers = {
-        easy: { timeMultiplier: 0.7, rewardMultiplier: 0.8, killRange: [1, 2] },
-        normal: { timeMultiplier: 1.0, rewardMultiplier: 1.0, killRange: [1, 3] },
-        hard: { timeMultiplier: 1.5, rewardMultiplier: 1.5, killRange: [2, 5] }
-      };
-      
-      const modifier = difficultyModifiers[difficulty];
-      modifiedHuntTime *= modifier.timeMultiplier;
+      const modifiedHuntTime = getModifiedHuntTime(monster);
       
       updatePlayerStats({
         stamina: playerStats.stamina - 10,
@@ -241,12 +218,12 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
         [monster.id]: Date.now() + (modifiedHuntTime * 1000)
       }));
 
-      toast.success(`${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Hunt Started!`, {
+      toast.success(`Hunt Started!`, {
         description: `Hunting ${monster.name} (${Math.floor(modifiedHuntTime)}s)`
       });
 
       setTimeout(() => {
-        completeHunt(monster, difficulty);
+        completeHunt(monster);
       }, modifiedHuntTime * 1000);
     } else {
       toast.error("Cannot start hunt", {
@@ -255,7 +232,7 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
     }
   };
 
-  const completeHunt = (monster: Monster, difficulty: 'easy' | 'normal' | 'hard' = 'normal') => {
+  const completeHunt = (monster: Monster) => {
     updatePlayerStats({
       activeHunts: playerStats.activeHunts.filter(id => id !== monster.id)
     });
@@ -266,71 +243,34 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
       return newHunts;
     });
 
-    const difficultyModifiers = {
-      easy: { timeMultiplier: 0.7, rewardMultiplier: 0.8, killRange: [1, 2] },
-      normal: { timeMultiplier: 1.0, rewardMultiplier: 1.0, killRange: [1, 3] },
-      hard: { timeMultiplier: 1.5, rewardMultiplier: 1.5, killRange: [2, 5] }
-    };
+    // Calculate loot with drop rate bonuses
+    const resourceGatheringBonus = playerStats.skills.resourceGathering || 0;
+    const dropRateMultiplier = 1 + (resourceGatheringBonus * 0.1); // 10% per level
     
-    const modifier = difficultyModifiers[difficulty];
-    const { lootDropBonus, xpBonus } = getEquipmentBonus();
-    
-    // Calculate number of kills (random within range, influenced by gear and skills)
-    const baseKillRange = modifier.killRange;
-    const trackingBonus = (playerStats.skills.tracking || 0) * 0.1; // 10% chance per level
-    const gearKillBonus = Math.floor((lootDropBonus + xpBonus) / 20); // Every 20% bonus = +1 potential kill
-    const maxKills = Math.min(baseKillRange[1] + gearKillBonus + Math.floor(trackingBonus), 8); // Cap at 8 kills
-    const minKills = Math.max(baseKillRange[0], 1);
-    const killCount = Math.floor(Math.random() * (maxKills - minKills + 1)) + minKills;
+    const actualDrops = monster.drops.map(drop => ({
+      ...drop,
+      quantity: Math.ceil(drop.quantity * dropRateMultiplier)
+    }));
 
-    // Calculate total rewards
-    const resourceGatheringBonus = playerStats.skills.looting || 0;
-    const dropRateMultiplier = 1 + (resourceGatheringBonus * 0.15) + (lootDropBonus / 100); // 15% per level + gear bonus
+    const xpGained = monster.level * 10;
     
-    const totalDrops: InventoryItem[] = [];
-    let totalGold = 0;
-    let totalXp = 0;
-    
-    for (let i = 0; i < killCount; i++) {
-      // Each kill has a chance to drop items
-      const actualDrops = monster.drops.filter(() => Math.random() < (0.7 + (dropRateMultiplier - 1))).map(drop => ({
-        ...drop,
-        quantity: Math.ceil(drop.quantity * Math.random() * (0.5 + dropRateMultiplier))
-      }));
-      totalDrops.push(...actualDrops);
-      totalGold += Math.floor(monster.goldReward * modifier.rewardMultiplier * (1 + xpBonus / 100));
-      totalXp += Math.floor(monster.level * 8 * (1 + xpBonus / 100));
-    }
-    
-    // Consolidate duplicate drops
-    const consolidatedDrops: InventoryItem[] = [];
-    totalDrops.forEach(drop => {
-      const existing = consolidatedDrops.find(item => item.id === drop.id);
-      if (existing) {
-        existing.quantity += drop.quantity;
-      } else {
-        consolidatedDrops.push({ ...drop });
-      }
-    });
-    
-    updateMonsterDefeatedCount(monster.id, consolidatedDrops, totalGold, totalXp);
+    updateMonsterDefeatedCount(monster.id, actualDrops, monster.goldReward, xpGained);
     
     // Level up skills through hunting
     const newSkills = { ...playerStats.skills };
-    newSkills.combat = (newSkills.combat || 0) + (0.1 * killCount);
-    newSkills.tracking = (newSkills.tracking || 0) + (0.05 * killCount);
-    newSkills.looting = (newSkills.looting || 0) + (0.03 * consolidatedDrops.length);
+    newSkills.attackSpeed = (newSkills.attackSpeed || 0) + 0.1;
+    newSkills.resourceGathering = (newSkills.resourceGathering || 0) + 0.05;
     
     updatePlayerStats({ skills: newSkills });
 
-    // Show detailed hunt completion toast
-    toast.success(`Hunt Complete! ${killCount} ${monster.name}${killCount > 1 ? 's' : ''} defeated!`, {
-      description: `+${totalGold} gold, +${totalXp} XP (${difficulty} difficulty)`,
+    // Show hunt completion toast
+    toast.success(`${monster.name} Defeated!`, {
+      description: `+${monster.goldReward} gold, +${xpGained} XP`,
       action: {
-        label: "View Rewards",
+        label: "View Loot",
         onClick: () => {
-          toast.info("Hunt Rewards Summary", {
-            description: `Kills: ${killCount} | Gold: ${totalGold} | XP: ${totalXp} | Loot: ${consolidatedDrops.map(drop => `${drop.name} x${drop.quantity}`).join(', ') || 'None'}`
+          toast.info("Loot Obtained", {
+            description: actualDrops.map(drop => `${drop.name} x${drop.quantity}`).join(', ')
           });
         }
       }
@@ -444,39 +384,19 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
                       Hunting...
                     </Button>
                   ) : (
-                    <div className="flex gap-1">
-                      <Button 
-                        size="sm" 
-                        onClick={() => startHunt(monster, 'easy')}
-                        disabled={!canHunt}
-                        className="bg-green-600 hover:bg-green-500 text-white disabled:bg-gray-600 text-xs px-2"
-                        title="Easy: 70% time, 80% rewards, 1-2 kills"
-                      >
-                        Easy
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        onClick={() => startHunt(monster, 'normal')}
-                        disabled={!canHunt}
-                        className="bg-yellow-600 hover:bg-yellow-500 text-white disabled:bg-gray-600 text-xs px-2"
-                        title="Normal: 100% time, 100% rewards, 1-3 kills"
-                      >
-                        Normal
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        onClick={() => startHunt(monster, 'hard')}
-                        disabled={!canHunt}
-                        className="bg-red-600 hover:bg-red-500 text-white disabled:bg-gray-600 text-xs px-2"
-                        title="Hard: 150% time, 150% rewards, 2-5 kills"
-                      >
-                        Hard
-                      </Button>
-                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => startHunt(monster)}
+                      disabled={!canHunt}
+                      className="bg-red-600 hover:bg-red-500 text-white disabled:bg-gray-600"
+                    >
+                      <Play className="h-3 w-3 mr-1" />
+                      Hunt
+                    </Button>
                   )}
                   {monster.defeatedCount >= 10 && (
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white text-xs">
-                      Auto Hunt
+                    <Button size="sm" className="bg-green-600 hover:bg-green-500 text-white">
+                      Auto
                     </Button>
                   )}
                 </div>

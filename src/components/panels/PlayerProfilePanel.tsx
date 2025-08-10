@@ -34,7 +34,7 @@ export const PlayerProfilePanel: React.FC<PlayerProfilePanelProps> = ({
 
   const renderEquipmentSlot = (slot: 'weapon' | 'armor' | 'accessory', item?: InventoryItem) => {
     return (
-      <div className="p-3 border-2 border-blue-500/30 rounded-lg bg-gradient-to-r from-blue-950/20 to-blue-900/10 hover:border-blue-400/50 transition-all" title={item ? `${item.name} - ${Object.entries(item.stats || {}).map(([stat, value]) => `+${value} ${stat}`).join(', ')}` : `Empty ${slot} slot`}>
+      <div className="p-3 border-2 border-blue-500/30 rounded-lg bg-gradient-to-r from-blue-950/20 to-blue-900/10 hover:border-blue-400/50 transition-all">
         <div className="flex items-center gap-2 mb-2">
           {getEquipmentSlotIcon(slot)}
           <span className="text-sm font-medium capitalize text-blue-300">{slot}</span>
@@ -43,11 +43,11 @@ export const PlayerProfilePanel: React.FC<PlayerProfilePanelProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-lg">{item.icon}</span>
             <div>
-              <div className={`text-sm font-medium ${item.rarity === 'legendary' ? 'text-yellow-400' : item.rarity === 'epic' ? 'text-purple-400' : item.rarity === 'rare' ? 'text-blue-400' : item.rarity === 'uncommon' ? 'text-green-400' : 'text-white'}`}>{item.name}</div>
+              <div className="text-sm font-medium text-white">{item.name}</div>
               {item.stats && (
                 <div className="text-xs text-gray-400">
                   {Object.entries(item.stats).map(([stat, value]) => 
-                    `+${value}${stat.includes('rate') || stat.includes('speed') || stat.includes('drop') ? '%' : ''} ${stat}`
+                    `+${value}${stat.includes('rate') ? '%' : ''} ${stat}`
                   ).join(', ')}
                 </div>
               )}

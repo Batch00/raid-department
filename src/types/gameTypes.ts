@@ -75,7 +75,7 @@ export interface Biome {
 export interface CraftingRecipe {
   id: string;
   name: string;
-  category: 'weapon' | 'armor' | 'accessory' | 'consumable';
+  category: 'weapon' | 'armor' | 'consumable';
   result: InventoryItem;
   materials: { itemId: string; quantity: number }[];
   requiredLevel?: number;
