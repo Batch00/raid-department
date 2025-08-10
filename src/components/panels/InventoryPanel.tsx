@@ -78,8 +78,17 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({ inventory, equip
   const handleEquipItem = (item: InventoryItem) => {
     if (item.type === 'equipment' && equipItem) {
       equipItem(item);
+      const statsText = item.stats ? Object.entries(item.stats).map(([stat, value]) => `+${value}${stat.includes('rate') || stat.includes('speed') || stat.includes('drop') ? '%' : ''} ${stat}`).join(', ') : '';
       toast.success(`Equipped ${item.name}!`, {
-        description: `${item.name} is now equipped and ready for battle.`
+        description: `${item.name} is now equipped. ${statsText ? `Bonuses: ${statsText}` : ''}`
+      });
+    } else if (item.type === 'consumable') {
+      toast.info(`${item.name}`, {
+        description: "Consumable items will be usable in future updates."
+      });
+    } else if (item.type === 'material') {
+      toast.info(`${item.name}`, {
+        description: "Crafting material. Use in the Crafting panel to create equipment."
       });
     }
   };
