@@ -34,10 +34,12 @@ export interface InventoryItem {
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   quantity: number;
   type?: 'material' | 'equipment' | 'consumable';
+  equipmentType?: 'weapon' | 'armor' | 'ring' | 'amulet' | 'trinket';
   stats?: { [key: string]: number };
   level?: number;
   experience?: number;
   source?: string; // Where the item can be obtained
+  requiredSkillLevel?: { [skillName: string]: number };
 }
 
 export interface PlayerStats {
@@ -58,11 +60,31 @@ export interface PlayerProfile {
   equippedGear: {
     weapon?: InventoryItem;
     armor?: InventoryItem;
-    accessory?: InventoryItem;
+    ring?: InventoryItem;
+    amulet?: InventoryItem;
+    trinket?: InventoryItem;
   };
   totalMonstersHunted: number;
   totalGoldEarned: number;
   totalIdleTime: number; // in seconds
+  autoEquipEnabled: boolean;
+}
+
+export interface HuntResult {
+  monsterId: string;
+  kills: number;
+  goldEarned: number;
+  xpGained: number;
+  loot: InventoryItem[];
+  timeCompleted: string;
+}
+
+export interface HuntDifficulty {
+  id: string;
+  name: string;
+  timeMultiplier: number;
+  rewardMultiplier: number;
+  rarityBonus: number;
 }
 
 export interface Biome {
@@ -75,10 +97,11 @@ export interface Biome {
 export interface CraftingRecipe {
   id: string;
   name: string;
-  category: 'weapon' | 'armor' | 'consumable';
+  category: 'weapon' | 'armor' | 'accessory' | 'consumable';
   result: InventoryItem;
   materials: { itemId: string; quantity: number }[];
   requiredLevel?: number;
+  requiredSkills?: { [skillName: string]: number };
 }
 
 export interface GearUpgrade {

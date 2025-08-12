@@ -135,6 +135,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             addToInventory={addToInventory}
             removeFromInventory={removeFromInventory}
             equipItem={equipItem}
+            playerStats={playerStats}
+            playerProfile={playerProfile}
+            updatePlayerProfile={updatePlayerProfile}
           />
         );
       case 'gear-upgrading':

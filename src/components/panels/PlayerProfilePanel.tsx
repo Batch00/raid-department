@@ -27,12 +27,14 @@ export const PlayerProfilePanel: React.FC<PlayerProfilePanelProps> = ({
     switch (slot) {
       case 'weapon': return <Sword className="h-4 w-4" />;
       case 'armor': return <Shield className="h-4 w-4" />;
-      case 'accessory': return <Gem className="h-4 w-4" />;
+      case 'ring': return <Gem className="h-4 w-4" />;
+      case 'amulet': return <Gem className="h-4 w-4" />;
+      case 'trinket': return <Gem className="h-4 w-4" />;
       default: return null;
     }
   };
 
-  const renderEquipmentSlot = (slot: 'weapon' | 'armor' | 'accessory', item?: InventoryItem) => {
+  const renderEquipmentSlot = (slot: 'weapon' | 'armor' | 'ring' | 'amulet' | 'trinket', item?: InventoryItem) => {
     return (
       <div className="p-3 border-2 border-blue-500/30 rounded-lg bg-gradient-to-r from-blue-950/20 to-blue-900/10 hover:border-blue-400/50 transition-all">
         <div className="flex items-center gap-2 mb-2">
@@ -130,7 +132,11 @@ export const PlayerProfilePanel: React.FC<PlayerProfilePanelProps> = ({
           <h3 className="text-md font-semibold text-blue-100">Equipped Gear</h3>
           {renderEquipmentSlot('weapon', playerProfile.equippedGear.weapon)}
           {renderEquipmentSlot('armor', playerProfile.equippedGear.armor)}
-          {renderEquipmentSlot('accessory', playerProfile.equippedGear.accessory)}
+          
+          <h4 className="text-sm font-semibold text-blue-200 mt-4">Accessories</h4>
+          {renderEquipmentSlot('ring', playerProfile.equippedGear.ring)}
+          {renderEquipmentSlot('amulet', playerProfile.equippedGear.amulet)}
+          {renderEquipmentSlot('trinket', playerProfile.equippedGear.trinket)}
         </div>
       </div>
     </div>

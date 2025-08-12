@@ -94,9 +94,15 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
   });
 
   const [inventory, setInventory] = useState<InventoryItem[]>([
-    { id: 'iron-sword', name: 'Iron Sword', icon: '⚔️', rarity: 'common', quantity: 1, type: 'equipment', stats: { 'attack speed': 10 } },
+    { id: 'iron-sword', name: 'Iron Sword', icon: '⚔️', rarity: 'common', quantity: 1, type: 'equipment', equipmentType: 'weapon', stats: { 'attack speed': 10 } },
     { id: 'health-potion', name: 'Health Potion', icon: '🧪', rarity: 'common', quantity: 5, type: 'consumable' },
-    { id: 'shadow-essence', name: 'Shadow Essence', icon: '🌑', rarity: 'uncommon', quantity: 2, type: 'material' }
+    { id: 'shadow-essence', name: 'Shadow Essence', icon: '🌑', rarity: 'uncommon', quantity: 2, type: 'material' },
+    { id: 'iron-ore', name: 'Iron Ore', icon: '⛏️', rarity: 'common', quantity: 5, type: 'material' },
+    { id: 'crystal-shard', name: 'Crystal Shard', icon: '💎', rarity: 'rare', quantity: 3, type: 'material' },
+    { id: 'leather', name: 'Leather', icon: '🦴', rarity: 'common', quantity: 4, type: 'material' },
+    { id: 'herb', name: 'Herb', icon: '🌿', rarity: 'common', quantity: 8, type: 'material' },
+    { id: 'pure-water', name: 'Pure Water', icon: '💧', rarity: 'common', quantity: 3, type: 'material' },
+    { id: 'luck-ring', name: 'Lucky Ring', icon: '💍', rarity: 'uncommon', quantity: 1, type: 'equipment', equipmentType: 'ring', stats: { 'loot bonus': 15 } }
   ]);
 
   const [playerGold, setPlayerGold] = useState(10000);
@@ -110,7 +116,8 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
     equippedGear: {},
     totalMonstersHunted: 0,
     totalGoldEarned: 0,
-    totalIdleTime: 0
+    totalIdleTime: 0,
+    autoEquipEnabled: false
   });
   const [achievements, setAchievements] = useState<Achievement[]>([
     {
@@ -180,8 +187,13 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
   const equipItem = (item: InventoryItem) => {
     if (!item.type || item.type !== 'equipment') return;
     
-    const slotType = item.stats && 'defense' in item.stats ? 'armor' : 
-                     item.stats && ('attack speed' in item.stats || 'crit chance' in item.stats) ? 'weapon' : 'accessory';
+    // Determine equipment slot based on equipmentType or stats
+    let slotType = item.equipmentType;
+    if (!slotType) {
+      if (item.stats && 'defense' in item.stats) slotType = 'armor';
+      else if (item.stats && ('attack speed' in item.stats || 'crit chance' in item.stats)) slotType = 'weapon';
+      else slotType = 'ring'; // Default accessory slot
+    }
     
     setPlayerProfile(prev => ({
       ...prev,
