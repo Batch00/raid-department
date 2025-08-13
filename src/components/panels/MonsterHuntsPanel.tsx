@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sword, Zap, Shield, Clock, Battery, Play, Pause, Target, Star } from 'lucide-react';
-import { Monster, PlayerStats, Biome, InventoryItem, PlayerProfile, HuntDifficulty } from '@/types/gameTypes';
+import { Sword, Zap, Shield, Clock, Battery, Play, Pause, Target, Star, Sparkles, AlertTriangle } from 'lucide-react';
+import { BattleAnimation } from '@/components/BattleAnimation';
+import { Monster, PlayerStats, Biome, InventoryItem, PlayerProfile, HuntDifficulty, HuntEvent, CriticalHunt } from '@/types/gameTypes';
 import { toast } from 'sonner';
 
 interface MonsterHuntsPanelProps {
@@ -31,7 +32,8 @@ const biomes: Biome[] = [
         ],
         goldReward: 150,
         defeatedCount: 0,
-        isAutoHuntUnlocked: false
+        isAutoHuntUnlocked: false,
+        tier: 'basic'
       },
       {
         id: 'shadow-alpha',
@@ -49,7 +51,8 @@ const biomes: Biome[] = [
         isAutoHuntUnlocked: false,
         isEvolved: true,
         evolvedFrom: 'shadow-wolf',
-        evolutionRequirement: { type: 'kills', value: 50 }
+        evolutionRequirement: { type: 'kills', value: 50 },
+        tier: 'elite'
       },
       {
         id: 'forest-troll',
@@ -64,7 +67,8 @@ const biomes: Biome[] = [
         ],
         goldReward: 250,
         defeatedCount: 0,
-        isAutoHuntUnlocked: false
+        isAutoHuntUnlocked: false,
+        tier: 'basic'
       }
     ]
   },
@@ -86,7 +90,8 @@ const biomes: Biome[] = [
         ],
         goldReward: 350,
         defeatedCount: 0,
-        isAutoHuntUnlocked: false
+        isAutoHuntUnlocked: false,
+        tier: 'elite'
       },
       {
         id: 'frost-behemoth',
@@ -104,7 +109,8 @@ const biomes: Biome[] = [
         isAutoHuntUnlocked: false,
         isEvolved: true,
         evolvedFrom: 'tundra-yeti',
-        evolutionRequirement: { type: 'playerLevel', value: 30 }
+        evolutionRequirement: { type: 'playerLevel', value: 30 },
+        tier: 'boss'
       }
     ]
   },
@@ -126,7 +132,8 @@ const biomes: Biome[] = [
         ],
         goldReward: 200,
         defeatedCount: 0,
-        isAutoHuntUnlocked: false
+        isAutoHuntUnlocked: false,
+        tier: 'basic'
       },
       {
         id: 'toxic-hydra',
@@ -144,7 +151,8 @@ const biomes: Biome[] = [
         isAutoHuntUnlocked: false,
         isEvolved: true,
         evolvedFrom: 'swamp-lurker',
-        evolutionRequirement: { type: 'kills', value: 30 }
+        evolutionRequirement: { type: 'kills', value: 30 },
+        tier: 'boss'
       }
     ]
   }
@@ -155,6 +163,60 @@ const huntDifficulties: HuntDifficulty[] = [
   { id: 'normal', name: 'Normal', timeMultiplier: 1, rewardMultiplier: 1, rarityBonus: 0.1 },
   { id: 'hard', name: 'Hard', timeMultiplier: 1.5, rewardMultiplier: 1.5, rarityBonus: 0.25 },
   { id: 'elite', name: 'Elite', timeMultiplier: 2, rewardMultiplier: 2.5, rarityBonus: 0.5 }
+];
+
+const huntEvents: HuntEvent[] = [
+  {
+    id: 'treasure-cache',
+    name: 'Hidden Treasure Cache',
+    description: 'You discovered a hidden treasure cache!',
+    type: 'treasure',
+    chance: 0.15,
+    effects: {
+      goldMultiplier: 2,
+      bonusLoot: [
+        { id: 'gem-pouch', name: 'Gem Pouch', icon: '💎', rarity: 'rare', quantity: 1, type: 'material' }
+      ]
+    }
+  },
+  {
+    id: 'monster-ambush',
+    name: 'Monster Ambush',
+    description: 'You were ambushed by additional monsters!',
+    type: 'ambush',
+    chance: 0.12,
+    effects: {
+      xpMultiplier: 1.5,
+      lootMultiplier: 1.3,
+      staminaCost: 5
+    }
+  },
+  {
+    id: 'environmental-hazard',
+    name: 'Environmental Hazard',
+    description: 'Dangerous terrain slowed your hunt but revealed rare materials.',
+    type: 'hazard',
+    chance: 0.08,
+    effects: {
+      bonusLoot: [
+        { id: 'rare-mineral', name: 'Rare Mineral', icon: '⛰️', rarity: 'epic', quantity: 1, type: 'material' }
+      ]
+    }
+  },
+  {
+    id: 'rare-creature',
+    name: 'Rare Creature Sighting',
+    description: 'You encountered a rare variant with unique drops!',
+    type: 'rare_creature',
+    chance: 0.05,
+    effects: {
+      lootMultiplier: 2,
+      xpMultiplier: 2,
+      bonusLoot: [
+        { id: 'prismatic-essence', name: 'Prismatic Essence', icon: '🌈', rarity: 'legendary', quantity: 1, type: 'material' }
+      ]
+    }
+  }
 ];
 
 export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({ 
@@ -267,12 +329,55 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
     // Base kills: 1-3, influenced by skills and gear
     const baseKills = Math.floor(Math.random() * 3) + 1;
     const skillKillBonus = Math.floor((combatSkill + trackingSkill) / 5); // 1 extra kill per 5 combined skill levels
-    const totalKills = Math.max(1, baseKills + skillKillBonus);
+    let totalKills = Math.max(1, baseKills + skillKillBonus);
     
     // Difficulty modifiers
     const difficultyData = huntDifficulties.find(d => d.id === difficulty) || huntDifficulties[1];
-    const difficultyGoldMultiplier = difficultyData.rewardMultiplier;
-    const difficultyXpMultiplier = difficultyData.rewardMultiplier;
+    let difficultyGoldMultiplier = difficultyData.rewardMultiplier;
+    let difficultyXpMultiplier = difficultyData.rewardMultiplier;
+    let difficultyLootMultiplier = 1;
+    
+    // Check for hunt events
+    let eventText = '';
+    let bonusStaminaCost = 0;
+    const eventBonusLoot: InventoryItem[] = [];
+    
+    huntEvents.forEach(event => {
+      if (Math.random() < event.chance) {
+        eventText += `🎯 ${event.name}: ${event.description} `;
+        
+        if (event.effects.goldMultiplier) difficultyGoldMultiplier *= event.effects.goldMultiplier;
+        if (event.effects.xpMultiplier) difficultyXpMultiplier *= event.effects.xpMultiplier;
+        if (event.effects.lootMultiplier) difficultyLootMultiplier *= event.effects.lootMultiplier;
+        if (event.effects.staminaCost) bonusStaminaCost += event.effects.staminaCost;
+        if (event.effects.bonusLoot) eventBonusLoot.push(...event.effects.bonusLoot);
+        
+        // Show event toast
+        toast.info(`Hunt Event!`, {
+          description: `${event.name}: ${event.description}`,
+          duration: 3000
+        });
+      }
+    });
+    
+    // Check for critical hunt
+    let isCriticalHunt = false;
+    if (Math.random() < 0.1) { // 10% chance for critical hunt
+      isCriticalHunt = true;
+      totalKills = Math.floor(totalKills * 1.5);
+      difficultyGoldMultiplier *= 1.5;
+      difficultyXpMultiplier *= 1.5;
+      
+      toast.success(`💫 Critical Hunt!`, {
+        description: `Exceptional performance! Bonus kills and rewards!`,
+        duration: 4000
+      });
+    }
+    
+    // Apply bonus stamina cost if any
+    if (bonusStaminaCost > 0) {
+      updatePlayerStats({ stamina: Math.max(0, playerStats.stamina - bonusStaminaCost) });
+    }
     
     // Calculate rewards per kill
     const goldPerKill = Math.floor(monster.goldReward * difficultyGoldMultiplier);
@@ -282,8 +387,8 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
     const totalXp = xpPerKill * totalKills;
     
     // Calculate loot with bonuses
-    const dropRateMultiplier = 1 + (lootingSkill * 0.1) + (lootBonus / 100) + difficultyData.rarityBonus;
-    const totalLoot: InventoryItem[] = [];
+    const dropRateMultiplier = (1 + (lootingSkill * 0.1) + (lootBonus / 100) + difficultyData.rarityBonus) * difficultyLootMultiplier;
+    const totalLoot: InventoryItem[] = [...eventBonusLoot];
     
     for (let i = 0; i < totalKills; i++) {
       monster.drops.forEach(drop => {
@@ -311,13 +416,14 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
 
     // Show hunt completion toast with summary
     const difficultyName = difficultyData.name;
-    toast.success(`${difficultyName} Hunt Complete!`, {
+    const huntTypeText = isCriticalHunt ? '💫 Critical ' : '';
+    toast.success(`${huntTypeText}${difficultyName} Hunt Complete!`, {
       description: `${totalKills} ${monster.name}(s) defeated! +${totalGold} gold, +${totalXp} XP`,
       action: {
-        label: "View Loot",
+        label: "View Details",
         onClick: () => {
           toast.info("Hunt Summary", {
-            description: `Kills: ${totalKills} | Loot: ${totalLoot.map(l => `${l.name} x${l.quantity}`).join(', ') || 'None'}`
+            description: `${eventText}Kills: ${totalKills} | Loot: ${totalLoot.map(l => `${l.name} x${l.quantity}`).join(', ') || 'None'}`
           });
         }
       }
@@ -404,8 +510,18 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
           return (
             <div key={monster.id} className={`p-4 border-2 border-red-500/30 rounded-lg bg-gradient-to-r from-red-950/20 to-red-900/10 hover:border-red-400/50 transition-all ${getBiomeColor(selectedBiome)} ${monster.isEvolved ? 'border-purple-500/50' : ''}`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-lg">
+                <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-lg relative">
                   {monster.icon}
+                  {monster.tier === 'boss' && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full flex items-center justify-center">
+                      <span className="text-[8px] text-white">👑</span>
+                    </div>
+                  )}
+                  {monster.tier === 'elite' && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-600 rounded-full flex items-center justify-center">
+                      <Star className="h-2 w-2 text-white" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -413,6 +529,13 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
                     {monster.isEvolved && (
                       <span className="text-xs bg-purple-600 px-2 py-1 rounded text-white">EVOLVED</span>
                     )}
+                    <span className={`text-xs px-2 py-1 rounded capitalize ${
+                      monster.tier === 'boss' ? 'bg-red-600/80 text-white' :
+                      monster.tier === 'elite' ? 'bg-purple-600/80 text-white' :
+                      'bg-gray-600/80 text-white'
+                    }`}>
+                      {monster.tier}
+                    </span>
                   </div>
                   <p className="text-sm text-red-300">
                     Drops: {monster.drops.map(d => d.name).join(', ')}
@@ -443,10 +566,17 @@ export const MonsterHuntsPanel: React.FC<MonsterHuntsPanelProps> = ({
                 </div>
                 <div className="flex flex-col gap-1">
                   {isHunting ? (
-                    <Button size="sm" disabled className="bg-gray-600 text-white">
-                      <Pause className="h-3 w-3 mr-1" />
-                      Hunting...
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                      <Button size="sm" disabled className="bg-gray-600 text-white">
+                        <Pause className="h-3 w-3 mr-1" />
+                        Hunting...
+                      </Button>
+                      <BattleAnimation 
+                        isActive={!!isHunting}
+                        monsterIcon={monster.icon}
+                        duration={getModifiedHuntTime(monster)}
+                      />
+                    </div>
                   ) : (
                     <Button 
                       size="sm" 

@@ -223,7 +223,8 @@ export const PanelContent: React.FC<PanelContentProps> = ({
               size="icon"
               variant="ghost"
               onClick={() => removePanel(panel.id)}
-              className="h-7 w-7 hover:bg-destructive/20 text-destructive"
+              className="h-7 w-7 hover:bg-destructive/20 text-destructive z-10"
+              title="Close Panel"
             >
               <X className="h-4 w-4" />
             </Button>

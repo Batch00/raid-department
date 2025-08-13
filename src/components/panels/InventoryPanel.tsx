@@ -77,9 +77,15 @@ export const InventoryPanel: React.FC<InventoryPanelProps> = ({ inventory, equip
 
   const handleEquipItem = (item: InventoryItem) => {
     if (item.type === 'equipment' && equipItem) {
+      // Show equipment type being equipped
+      const slotType = item.equipmentType || 'equipment';
       equipItem(item);
       toast.success(`Equipped ${item.name}!`, {
-        description: `${item.name} is now equipped and ready for battle.`
+        description: `${item.name} is now equipped in your ${slotType} slot and ready for battle.`
+      });
+    } else if (item.type !== 'equipment') {
+      toast.error(`Cannot equip ${item.name}`, {
+        description: 'This item is not equipment and cannot be equipped.'
       });
     }
   };

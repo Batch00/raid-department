@@ -95,6 +95,7 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
 
   const [inventory, setInventory] = useState<InventoryItem[]>([
     { id: 'iron-sword', name: 'Iron Sword', icon: '⚔️', rarity: 'common', quantity: 1, type: 'equipment', equipmentType: 'weapon', stats: { 'attack speed': 10 } },
+    { id: 'leather-armor', name: 'Leather Armor', icon: '🛡️', rarity: 'common', quantity: 1, type: 'equipment', equipmentType: 'armor', stats: { 'defense': 5 } },
     { id: 'health-potion', name: 'Health Potion', icon: '🧪', rarity: 'common', quantity: 5, type: 'consumable' },
     { id: 'shadow-essence', name: 'Shadow Essence', icon: '🌑', rarity: 'uncommon', quantity: 2, type: 'material' },
     { id: 'iron-ore', name: 'Iron Ore', icon: '⛏️', rarity: 'common', quantity: 5, type: 'material' },
@@ -102,7 +103,9 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
     { id: 'leather', name: 'Leather', icon: '🦴', rarity: 'common', quantity: 4, type: 'material' },
     { id: 'herb', name: 'Herb', icon: '🌿', rarity: 'common', quantity: 8, type: 'material' },
     { id: 'pure-water', name: 'Pure Water', icon: '💧', rarity: 'common', quantity: 3, type: 'material' },
-    { id: 'luck-ring', name: 'Lucky Ring', icon: '💍', rarity: 'uncommon', quantity: 1, type: 'equipment', equipmentType: 'ring', stats: { 'loot bonus': 15 } }
+    { id: 'luck-ring', name: 'Lucky Ring', icon: '💍', rarity: 'uncommon', quantity: 1, type: 'equipment', equipmentType: 'ring', stats: { 'loot bonus': 15 } },
+    { id: 'speed-amulet', name: 'Speed Amulet', icon: '🔮', rarity: 'rare', quantity: 1, type: 'equipment', equipmentType: 'amulet', stats: { 'hunt speed': 20 } },
+    { id: 'exp-trinket', name: 'Experience Trinket', icon: '✨', rarity: 'epic', quantity: 1, type: 'equipment', equipmentType: 'trinket', stats: { 'xp bonus': 25 } }
   ]);
 
   const [playerGold, setPlayerGold] = useState(10000);
@@ -265,7 +268,7 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
   return (
     <WindowManagerProvider panels={panels} setPanels={setPanels}>
       <div className="h-screen bg-background text-foreground">
-        <div className="fixed bottom-4 left-4 z-50 flex gap-2">
+        <div className="fixed bottom-4 right-4 z-50 flex gap-2">
           <button 
             onClick={() => setZoomLevel(prev => Math.max(0.5, prev - 0.1))}
             className="px-3 py-1 bg-card border border-border rounded text-sm hover:bg-accent shadow-lg"

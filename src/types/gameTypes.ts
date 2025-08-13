@@ -25,6 +25,10 @@ export interface Monster {
     type: 'kills' | 'playerLevel';
     value: number;
   };
+  tier: 'basic' | 'elite' | 'boss';
+  attackPattern?: string;
+  weakness?: string;
+  criticalHuntVariant?: CriticalHunt;
 }
 
 export interface InventoryItem {
@@ -48,6 +52,30 @@ export interface PlayerStats {
   staminaRegenRate: number; // per minute
   activeHunts: string[]; // monster IDs
   skills: { [skillName: string]: number };
+}
+
+export interface HuntEvent {
+  id: string;
+  name: string;
+  description: string;
+  type: 'ambush' | 'treasure' | 'hazard' | 'rare_creature';
+  chance: number; // 0-1 probability
+  effects: {
+    goldMultiplier?: number;
+    xpMultiplier?: number;
+    lootMultiplier?: number;
+    staminaCost?: number;
+    bonusLoot?: InventoryItem[];
+  };
+}
+
+export interface CriticalHunt {
+  monsterId: string;
+  name: string;
+  icon: string;
+  rarity: 'rare' | 'epic' | 'legendary';
+  bonusDrops: InventoryItem[];
+  triggerChance: number;
 }
 
 export interface PlayerProfile {
