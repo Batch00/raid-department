@@ -1,4 +1,4 @@
-export type PanelType = 'monster-hunts' | 'inventory' | 'skill-tree' | 'marketplace' | 'crafting' | 'gear-upgrading' | 'player-profile' | 'achievements' | 'leaderboards' | 'hunt-history' | 'empty';
+export type PanelType = 'monster-hunts' | 'inventory' | 'skill-tree' | 'marketplace' | 'crafting' | 'gear-upgrading' | 'player-profile' | 'achievements' | 'leaderboards' | 'hunt-history' | 'quests' | 'biomes' | 'empty';
 
 export interface WindowPanel {
   id: string;
@@ -96,6 +96,10 @@ export interface PlayerProfile {
   totalGoldEarned: number;
   totalIdleTime: number; // in seconds
   autoEquipEnabled: boolean;
+  activeQuests?: Quest[];
+  completedQuests?: string[];
+  reputation?: { [faction: string]: number };
+  gold: number;
 }
 
 export interface HuntResult {
@@ -151,6 +155,89 @@ export interface Achievement {
   progress: number;
   maxProgress: number;
   type: 'monsters' | 'crafting' | 'gold' | 'skills' | 'idle';
+}
+
+export interface SkillNode {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  level: number;
+  maxLevel: number;
+  costPerLevel: number;
+  effects: { [effect: string]: number };
+  isActive: boolean;
+  prerequisite?: string;
+  requiredLevel?: number;
+}
+
+export interface Quest {
+  id: string;
+  title: string;
+  description: string;
+  type: 'hunt' | 'collect' | 'skill' | 'explore';
+  difficulty: 'easy' | 'medium' | 'hard';
+  giver: string;
+  objectives: QuestObjective[];
+  rewards: QuestRewards;
+  isActive: boolean;
+  isCompleted: boolean;
+  timeLimit?: number;
+  requiredLevel: number;
+  startTime?: number;
+}
+
+export interface QuestObjective {
+  type: 'kill' | 'collect' | 'skill' | 'reach';
+  target: string;
+  required: number;
+  current: number;
+}
+
+export interface QuestRewards {
+  gold: number;
+  xp: number;
+  items?: InventoryItem[];
+  reputation?: {
+    faction: string;
+    amount: number;
+  };
+}
+
+export interface QuestNPC {
+  id: string;
+  name: string;
+  faction: string;
+  reputation: string;
+  icon: string;
+  location: string;
+  dialogue: {
+    greeting: string;
+    questAvailable: string;
+    questComplete: string;
+    noQuests: string;
+  };
+}
+
+export interface ShopItem {
+  item: InventoryItem;
+  price: number;
+  stock: number;
+  restockTime?: number;
+  category: 'weapons' | 'armor' | 'accessories' | 'consumables' | 'materials' | 'rare';
+}
+
+export interface BiomeWeather {
+  type: 'clear' | 'rain' | 'storm' | 'fog' | 'snow' | 'heat_wave';
+  name: string;
+  effects: {
+    huntTimeModifier?: number;
+    lootModifier?: number;
+    encounterRateModifier?: number;
+    staminaCostModifier?: number;
+  };
+  duration: number;
+  rarity: number;
 }
 
 export interface LeaderboardEntry {
