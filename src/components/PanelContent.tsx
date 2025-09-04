@@ -126,6 +126,9 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             playerGold={playerGold}
             updatePlayerGold={updatePlayerGold}
             addToInventory={addToInventory}
+            inventory={inventory}
+            removeFromInventory={removeFromInventory}
+            playerProfile={playerProfile}
           />
         );
       case 'crafting':

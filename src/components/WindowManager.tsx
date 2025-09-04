@@ -120,7 +120,9 @@ export const WindowManager: React.FC<WindowManagerProps> = ({ children }) => {
     totalMonstersHunted: 0,
     totalGoldEarned: 0,
     totalIdleTime: 0,
-    autoEquipEnabled: false
+    autoEquipEnabled: false,
+    gold: 10000,
+    reputation: {}
   });
   const [achievements, setAchievements] = useState<Achievement[]>([
     {
